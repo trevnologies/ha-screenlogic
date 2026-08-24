@@ -1,0 +1,101 @@
+set_color_mode:
+  name: Set light color mode
+  description: >-
+    Set the IntelliBrite/ColorLogic pool light show or color. Requires
+    equipment with EQUIPMENT_FLAG.INTELLIBRITE.
+  fields:
+    config_entry:
+      name: Config entry
+      description: The ScreenLogic config entry to act on.
+      required: true
+      selector:
+        config_entry:
+          integration: screenlogic
+    color_mode:
+      name: Color mode
+      description: The light show or color to set.
+      required: true
+      selector:
+        select:
+          options:
+            - value: "all_off"
+              label: "All Off"
+            - value: "all_on"
+              label: "All On"
+            - value: "color_set"
+              label: "Color Set"
+            - value: "color_sync"
+              label: "Color Sync"
+            - value: "color_swim"
+              label: "Color Swim"
+            - value: "party"
+              label: "Party"
+            - value: "romance"
+              label: "Romance"
+            - value: "caribbean"
+              label: "Caribbean"
+            - value: "american"
+              label: "American"
+            - value: "sunset"
+              label: "Sunset"
+            - value: "royal"
+              label: "Royal"
+            - value: "save"
+              label: "Save"
+            - value: "recall"
+              label: "Recall"
+            - value: "blue"
+              label: "Blue"
+            - value: "green"
+              label: "Green"
+            - value: "red"
+              label: "Red"
+            - value: "white"
+              label: "White"
+            - value: "magenta"
+              label: "Magenta"
+            - value: "thumper"
+              label: "Thumper"
+            - value: "next_mode"
+              label: "Next Mode"
+            - value: "reset"
+              label: "Reset"
+            - value: "hold"
+              label: "Hold"
+
+start_super_chlorination:
+  name: Start super chlorination
+  description: >-
+    Start super chlorination. Requires equipment with
+    EQUIPMENT_FLAG.CHLORINATOR.
+  fields:
+    config_entry:
+      name: Config entry
+      description: The ScreenLogic config entry to act on.
+      required: true
+      selector:
+        config_entry:
+          integration: screenlogic
+    runtime:
+      name: Runtime
+      description: How long to run super chlorination, in hours.
+      required: false
+      default: 24
+      selector:
+        number:
+          min: 0
+          max: 72
+          unit_of_measurement: h
+          mode: box
+
+stop_super_chlorination:
+  name: Stop super chlorination
+  description: Stop super chlorination.
+  fields:
+    config_entry:
+      name: Config entry
+      description: The ScreenLogic config entry to act on.
+      required: true
+      selector:
+        config_entry:
+          integration: screenlogic
