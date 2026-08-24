@@ -6,6 +6,7 @@ import dataclasses
 from screenlogicpy.const.common import ON_OFF
 from screenlogicpy.const.data import ATTR, DEVICE, GROUP, VALUE
 from screenlogicpy.const.msg import CODE
+from screenlogicpy.device_const.pump import PUMP_TYPE
 from screenlogicpy.device_const.system import EQUIPMENT_FLAG
 
 from homeassistant.components.binary_sensor import (
@@ -215,9 +216,10 @@ async def async_setup_entry(
     for p_index, p_data in gateway.get_data(DEVICE.PUMP).items():
         if not p_data or not p_data.get(VALUE.DATA):
             continue
+        p_type = p_data.get(VALUE.TYPE)
         entities.extend(
             ScreenLogicPumpBinarySensor(
-                coordinator, copy(proto_pump_sensor_description), p_index
+                coordinator, copy(proto_pump_sensor_description), p_index, p_type
             )
             for proto_pump_sensor_description in SUPPORTED_PUMP_SENSORS
         )
@@ -284,9 +286,13 @@ class ScreenLogicPumpBinarySensor(ScreenLogicBinarySensor):
         coordinator: ScreenlogicDataUpdateCoordinator,
         entity_description: ScreenLogicBinarySensorDescription,
         pump_index: int,
+        pump_type: int | None = None,
     ) -> None:
         """Initialize of the entity."""
         entity_description = dataclasses.replace(
             entity_description, data_root=(DEVICE.PUMP, pump_index)
         )
         super().__init__(coordinator, entity_description)
+        self._attr_device_info = self._pump_device_info(
+            pump_index, PUMP_TYPE(pump_type).title if pump_type is not None else None
+        )

@@ -22,7 +22,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import ScreenLogicDataPath
+from .const import DOMAIN, ScreenLogicDataPath
 from .coordinator import ScreenlogicDataUpdateCoordinator
 from .util import generate_unique_id
 
@@ -59,6 +59,7 @@ class ScreenLogicEntity(CoordinatorEntity[ScreenlogicDataUpdateCoordinator]):
             self._attr_name = self.entity_data[ATTR.NAME]
         assert mac is not None
         self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, mac)},
             connections={(dr.CONNECTION_NETWORK_MAC, mac)},
             manufacturer="Pentair",
             model=self.gateway.controller_model,
@@ -95,6 +96,24 @@ class ScreenLogicEntity(CoordinatorEntity[ScreenlogicDataUpdateCoordinator]):
             return self.gateway.get_data(*self._data_path, strict=True)
         except KeyError as ke:
             raise HomeAssistantError(f"Data not found: {self._data_path}") from ke
+
+    def _pump_device_info(self, pump_index: int, pump_model: str | None) -> DeviceInfo:
+        """Build a DeviceInfo for a pump, split out from the main gateway device.
+
+        Pump diagnostics (GPM/RPM/Watts, running state) are physically
+        separate equipment from the gateway/controller diagnostics, so they
+        get their own device page via via_device rather than piling
+        everything under one "Diagnostic" list.
+        """
+        mac = self.mac
+        assert mac is not None
+        return DeviceInfo(
+            identifiers={(DOMAIN, f"{mac}_pump_{pump_index}")},
+            via_device=(DOMAIN, mac),
+            manufacturer="Pentair",
+            model=pump_model or "IntelliFlo Pump",
+            name=f"Pump {pump_index + 1}",
+        )
 
 
 @dataclass(frozen=True, kw_only=True)

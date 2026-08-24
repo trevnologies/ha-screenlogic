@@ -5,6 +5,7 @@ from copy import copy
 import dataclasses
 import logging
 
+from screenlogicpy.const.common import ON_OFF
 from screenlogicpy.const.data import ATTR, DEVICE, GROUP, VALUE
 from screenlogicpy.const.msg import CODE
 from screenlogicpy.device_const.chemistry import DOSE_STATE
@@ -304,6 +305,23 @@ async def async_setup_entry(
                     pump_type,
                 )
             )
+        # Only meaningful when the pump has more than one circuit assigned
+        # to it (e.g. a shared Pool/Spa/waterfall pump) - a single-circuit
+        # pump's "active program" is always just that one circuit.
+        if sum(1 for p in pump_data.get(VALUE.PRESET, {}).values() if p.get(ATTR.DEVICE_ID)) > 1:
+            entities.append(
+                ScreenLogicPumpActiveCircuitSensor(
+                    coordinator,
+                    ScreenLogicSensorDescription(
+                        data_root=(DEVICE.PUMP, pump_index),
+                        key=VALUE.PRESET,
+                        translation_key="pump_active_circuit",
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                    ),
+                    pump_index,
+                    pump_type,
+                )
+            )
 
     chem_sensor_description: ScreenLogicPushSensorDescription
     for chem_sensor_description in SUPPORTED_INTELLICHEM_SENSORS:
@@ -369,6 +387,57 @@ class ScreenLogicPushSensor(ScreenLogicSensor, ScreenLogicPushEntity):
     entity_description: ScreenLogicPushSensorDescription
 
 
+class ScreenLogicPumpActiveCircuitSensor(ScreenLogicSensor):
+    """Reports which assigned circuit/program is currently driving a pump.
+
+    A single physical pump (e.g. "Pump 1") is often wired to more than one
+    body/feature circuit (Pool, Spa, Pool Low, Spillway, Cleaner, ...), each
+    with its own preset RPM/GPM. The pump's live GPM/RPM/Watts sensors
+    reflect whichever program is *currently* active, but nothing else
+    surfaces which one that is - so e.g. "Pump 1 Watts Now" reads real
+    numbers even when it's actually running the Spa program, not Pool.
+
+    This cross-references the pump's 8 presets (each tagged with the
+    device_id of the circuit it belongs to) against the currently-on
+    circuits to report the active program's circuit name, falling back to
+    "Off" when the pump isn't running any of its assigned circuits.
+    """
+
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(
+        self,
+        coordinator: ScreenlogicDataUpdateCoordinator,
+        entity_description: ScreenLogicSensorDescription,
+        pump_index: int,
+        pump_type: int,
+    ) -> None:
+        """Initialize of the entity."""
+        super().__init__(coordinator, entity_description)
+        self._attr_device_info = self._pump_device_info(
+            pump_index, PUMP_TYPE(pump_type).title
+        )
+
+    @property
+    def native_value(self) -> str:
+        """Name of the circuit currently driving this pump, or 'Off'."""
+        presets = self.entity_data
+        assigned_device_ids = {
+            preset[ATTR.DEVICE_ID]
+            for preset in presets.values()
+            if preset.get(ATTR.DEVICE_ID)
+        }
+        for circuit_data in self.gateway.get_data(DEVICE.CIRCUIT).values():
+            if not circuit_data:
+                continue
+            if (
+                circuit_data.get(ATTR.DEVICE_ID) in assigned_device_ids
+                and circuit_data.get(ATTR.VALUE) == ON_OFF.ON
+            ):
+                return circuit_data[ATTR.NAME]
+        return "Off"
+
+
 class ScreenLogicPumpSensor(ScreenLogicSensor):
     """Representation of a ScreenLogic pump sensor."""
 
@@ -391,3 +460,6 @@ class ScreenLogicPumpSensor(ScreenLogicSensor):
             self._attr_entity_registry_enabled_default = (
                 entity_description.enabled_lambda(pump_type)
             )
+        self._attr_device_info = self._pump_device_info(
+            pump_index, PUMP_TYPE(pump_type).title
+        )
