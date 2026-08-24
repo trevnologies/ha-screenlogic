@@ -1,0 +1,153 @@
+{
+    "common": {
+        "climate_preset_dont_change": "N\u00e3o mude",
+        "climate_preset_heater": "Aquecedor",
+        "climate_preset_solar": "Solar",
+        "climate_preset_solar_preferred": "Preferencialmente solar",
+        "service_config_entry_description": "A entrada de configura\u00e7\u00e3o a ser usada para esta a\u00e7\u00e3o.",
+        "service_config_entry_name": "Entrada de configura\u00e7\u00e3o"
+    },
+    "config": {
+        "abort": {
+            "already_configured": "Dispositivo j\u00e1 est\u00e1 configurado"
+        },
+        "error": {
+            "cannot_connect": "Falha ao conectar"
+        },
+        "flow_title": "{name}",
+        "step": {
+            "gateway_entry": {
+                "data": {
+                    "port": "Porta"
+                },
+                "title": "ScreenLogic"
+            },
+            "gateway_select": {
+                "data": {
+                    "selected_gateway": "Gateway"
+                },
+                "description": "Os seguintes gateways ScreenLogic foram descobertos. Selecione um para configurar ou opte por configurar manualmente um gateway ScreenLogic.",
+                "title": "ScreenLogic"
+            }
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "active_alert": {
+                "name": "Alerta ativo"
+            },
+            "chem_high_alarm": {
+                "name": "{chem} alarme alto"
+            },
+            "chem_limit": {
+                "name": "{chem} limite de dose atingido"
+            },
+            "chem_low_alarm": {
+                "name": "{chem} alarme baixo"
+            },
+            "chem_supply_alarm": {
+                "name": "{chem} alarme de suprimento"
+            },
+            "cleaner_delay": {
+                "name": "Atraso do limpador"
+            },
+            "corosive": {
+                "name": "SI corrosivo"
+            },
+            "flow_alarm": {
+                "name": "Alarme de fluxo"
+            },
+            "freeze_mode": {
+                "name": "Modo de congelamento"
+            },
+            "ph_lockout": {
+                "name": "Bloqueio de pH"
+            },
+            "pool_delay": {
+                "name": "Atraso na piscina"
+            },
+            "probe_fault_alarm": {
+                "name": "Falha da sonda"
+            },
+            "scaling": {
+                "name": "Escala SI"
+            },
+            "scg_state": {
+                "name": "Clorador"
+            },
+            "spa_delay": {
+                "name": "Atraso do spa"
+            }
+        },
+        "climate": {
+            "body_0": {
+                "name": "Aquecimento da piscina",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "dont_change": "N\u00e3o mude",
+                            "heater": "Aquecedor",
+                            "solar": "Solar",
+                            "solar_preferred": "Preferencialmente solar"
+                        }
+                    }
+                }
+            },
+            "body_1": {
+                "name": "Aquecimento do spa",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "dont_change": "N\u00e3o mude",
+                            "heater": "Aquecedor",
+                            "solar": "Solar",
+                            "solar_preferred": "Solar preferido"
+                        }
+                    }
+                }
+            }
+        },
+        "number": {
+            "calcium_hardness": {
+                "name": "Dureza do c\u00e1lcio"
+            },
+            "cya": {
+                "name": "\u00c1cido cian\u00farico"
+            },
+            "pool_setpoint": {
+                "name": "Ponto de ajuste do clorador de piscina"
+            },
+            "salt_tds_ppm": {
+                "name": "Sal/TDS"
+            }
+        },
+        "sensor": {
+            "chem_dose_state": {
+                "state": {
+                    "dosing": "Dosagem",
+                    "mixing": "Misturando",
+                    "monitoring": "Monitoramento"
+                }
+            },
+            "controller_state": {
+                "name": "Estado do controlador",
+                "state": {
+                    "ready": "Pronto",
+                    "service": "Servi\u00e7o",
+                    "sync": "Sincronizar"
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "scan_interval": "Segundos entre escaneamentos"
+                },
+                "description": "Especifique as configura\u00e7\u00f5es para {gateway_name}",
+                "title": "ScreenLogic"
+            }
+        }
+    }
+}

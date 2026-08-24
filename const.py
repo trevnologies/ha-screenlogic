@@ -1,18 +1,20 @@
-"""Constants for the ScreenLogic integration."""
-
+"""Constants for the ScreenLogic integration (with remote gateway support)."""
 from screenlogicpy.const.common import UNIT
 from screenlogicpy.device_const.circuit import FUNCTION
 from screenlogicpy.device_const.system import COLOR_MODE
 
 from homeassistant.const import (
+    CONCENTRATION_PARTS_PER_MILLION,
+    PERCENTAGE,
     REVOLUTIONS_PER_MINUTE,
     UnitOfElectricPotential,
     UnitOfPower,
-    UnitOfRatio,
     UnitOfTemperature,
     UnitOfTime,
 )
 from homeassistant.util import slugify
+
+# ── Original constants (unchanged) ────────────────────────────────────────────
 
 type ScreenLogicDataPath = tuple[str | int, ...]
 
@@ -52,6 +54,28 @@ SL_UNIT_TO_HA_UNIT = {
     UNIT.HOUR: UnitOfTime.HOURS,
     UNIT.SECOND: UnitOfTime.SECONDS,
     UNIT.REVOLUTIONS_PER_MINUTE: REVOLUTIONS_PER_MINUTE,
-    UNIT.PARTS_PER_MILLION: UnitOfRatio.PARTS_PER_MILLION,
-    UNIT.PERCENT: UnitOfRatio.PERCENTAGE,
+    UNIT.PARTS_PER_MILLION: CONCENTRATION_PARTS_PER_MILLION,
+    UNIT.PERCENT: PERCENTAGE,
 }
+
+# ── Remote gateway additions ───────────────────────────────────────────────────
+
+CONF_CONNECTION_TYPE = "connection_type"
+CONNECTION_LOCAL = "local"
+CONNECTION_REMOTE = "remote"
+
+CONF_SYSTEM_NAME = "system_name"   # e.g. "Pentair: XX-XX-XX"
+CONF_PASSWORD = "password"
+
+PENTAIR_SERVER_HOST = "screenlogicserver.pentair.com"
+PENTAIR_SERVER_PORT = 500
+
+from homeassistant.const import Platform
+PLATFORMS = [
+    Platform.BINARY_SENSOR,
+    Platform.CLIMATE,
+    Platform.LIGHT,
+    Platform.NUMBER,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]

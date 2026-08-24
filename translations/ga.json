@@ -1,0 +1,244 @@
+{
+    "common": {
+        "climate_preset_dont_change": "N\u00e1 hathraigh",
+        "climate_preset_heater": "T\u00e9itheoir",
+        "climate_preset_solar": "Gr\u00e9ine",
+        "climate_preset_solar_preferred": "Gr\u00e9ine is fearr",
+        "service_config_entry_description": "An iontr\u00e1il chumra\u00edochta le h\u00fas\u00e1id don ghn\u00edomh seo.",
+        "service_config_entry_name": "Iontr\u00e1il chumra\u00edochta"
+    },
+    "config": {
+        "abort": {
+            "already_configured": "T\u00e1 an gl\u00e9as cumraithe cheana f\u00e9in"
+        },
+        "error": {
+            "cannot_connect": "Theip ar an nascadh"
+        },
+        "flow_title": "{name}",
+        "step": {
+            "gateway_entry": {
+                "data": {
+                    "ip_address": "Seoladh IP",
+                    "port": "Port"
+                },
+                "description": "Cuir isteach d\u2019fhaisn\u00e9is gheata ScreenLogic.",
+                "title": "ScreenLogic"
+            },
+            "gateway_select": {
+                "data": {
+                    "selected_gateway": "Geata"
+                },
+                "description": "Aims\u00edodh na geata\u00ed ScreenLogic seo a leanas. Roghnaigh ceann le cumr\u00fa, n\u00f3 roghnaigh geata ScreenLogic a chumr\u00fa de l\u00e1imh.",
+                "title": "ScreenLogic"
+            }
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "active_alert": {
+                "name": "Fol\u00e1ireamh gn\u00edomhach"
+            },
+            "chem_high_alarm": {
+                "name": "al\u00e1ram ard {chem}"
+            },
+            "chem_limit": {
+                "name": "Teorainn d\u00e1ileoige {chem} bainte amach"
+            },
+            "chem_low_alarm": {
+                "name": "al\u00e1ram \u00edseal {chem}"
+            },
+            "chem_supply_alarm": {
+                "name": "al\u00e1ram sol\u00e1thair {chem}"
+            },
+            "cleaner_delay": {
+                "name": "Moill glantach\u00e1in"
+            },
+            "corosive": {
+                "name": "Creimneach SI"
+            },
+            "flow_alarm": {
+                "name": "Al\u00e1ram sreafa"
+            },
+            "freeze_mode": {
+                "name": "M\u00f3d reoite"
+            },
+            "ph_lockout": {
+                "name": "glas\u00e1il pH"
+            },
+            "pool_delay": {
+                "name": "Moill linn sn\u00e1mha"
+            },
+            "probe_fault_alarm": {
+                "name": "Locht t\u00f3iread\u00f3ir"
+            },
+            "scaling": {
+                "name": "Sc\u00e1l\u00fa SI"
+            },
+            "scg_state": {
+                "name": "Cl\u00f3ir\u00edneoir"
+            },
+            "spa_delay": {
+                "name": "Moill Spa"
+            }
+        },
+        "climate": {
+            "body_0": {
+                "name": "Teas linn sn\u00e1mha",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "dont_change": "N\u00e1 hathraigh",
+                            "heater": "T\u00e9itheoir",
+                            "solar": "Gr\u00e9ine",
+                            "solar_preferred": "Gr\u00e9ine is fearr"
+                        }
+                    }
+                }
+            },
+            "body_1": {
+                "name": "Teas Spa",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "dont_change": "N\u00e1 hathraigh",
+                            "heater": "T\u00e9itheoir",
+                            "solar": "Gr\u00e9ine",
+                            "solar_preferred": "Gr\u00e9ine is fearr"
+                        }
+                    }
+                }
+            }
+        },
+        "number": {
+            "calcium_hardness": {
+                "name": "Cruas cailciam"
+            },
+            "cya": {
+                "name": "Aig\u00e9ad cian\u00farach"
+            },
+            "pool_setpoint": {
+                "name": "Socr\u00fa cl\u00f3ir\u00ednithe linne"
+            },
+            "salt_tds_ppm": {
+                "name": "Salann/TDS"
+            },
+            "spa_setpoint": {
+                "name": "Socrphointe cl\u00f3ir\u00edneoir Spa"
+            },
+            "total_alkalinity": {
+                "name": "Alcaileacht ioml\u00e1n"
+            }
+        },
+        "sensor": {
+            "air_temperature": {
+                "name": "Teocht an aeir"
+            },
+            "calcium_hardness": {
+                "name": "Cruas cailciam"
+            },
+            "chem_dose_state": {
+                "name": "staid d\u00e1ileog {chem}",
+                "state": {
+                    "dosing": "D\u00e1ileog",
+                    "mixing": "Meascadh",
+                    "monitoring": "Monat\u00f3ireacht"
+                }
+            },
+            "chem_last_dose_time": {
+                "name": "am d\u00e1ileog dheireanach {chem}"
+            },
+            "chem_last_dose_volume": {
+                "name": "toirt an d\u00e1ileoige dheireanaigh {chem}"
+            },
+            "chem_now": {
+                "name": "{chem} anois"
+            },
+            "chem_setpoint": {
+                "name": "pointe socraithe {chem}"
+            },
+            "chem_supply_level": {
+                "name": "leibh\u00e9al sol\u00e1thair {chem}"
+            },
+            "controller_state": {
+                "name": "St\u00e1das an rialaitheora",
+                "state": {
+                    "ready": "R\u00e9idh",
+                    "service": "Seirbh\u00eds",
+                    "sync": "Sioncr\u00f3naigh"
+                }
+            },
+            "cya": {
+                "name": "Aig\u00e9ad cian\u00farach"
+            },
+            "ph_probe_water_temp": {
+                "name": "teocht an uisce t\u00f3iread\u00f3ir pH"
+            },
+            "salt_ppm": {
+                "name": "Salann cl\u00f3ir\u00ednitheora"
+            },
+            "salt_tds_ppm": {
+                "name": "Salann/TDS"
+            },
+            "saturation": {
+                "name": "Inn\u00e9acs s\u00e1ithi\u00fach\u00e1in"
+            },
+            "super_chlor_timer": {
+                "name": "Uainead\u00f3ir s\u00e1rchl\u00f3ir\u00ednithe"
+            },
+            "total_alkalinity": {
+                "name": "Alcaileacht ioml\u00e1n"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "scan_interval": "Soicind\u00ed idir scananna"
+                },
+                "description": "Sonraigh socruithe do {gateway_name}",
+                "title": "ScreenLogic"
+            }
+        }
+    },
+    "services": {
+        "set_color_mode": {
+            "description": "Socra\u00edonn s\u00e9 seo an modh datha do na soilse uile at\u00e1 in ann dath a \u00fas\u00e1id agus at\u00e1 ceangailte leis an ngeata ScreenLogic seo.",
+            "fields": {
+                "color_mode": {
+                    "description": "An modh datha ScreenLogic le socr\u00fa.",
+                    "name": "M\u00f3d datha"
+                },
+                "config_entry": {
+                    "description": "An iontr\u00e1il chumra\u00edochta le h\u00fas\u00e1id don ghn\u00edomh seo.",
+                    "name": "Iontr\u00e1il chumra\u00edochta"
+                }
+            },
+            "name": "Socraigh m\u00f3d datha"
+        },
+        "start_super_chlorination": {
+            "description": "Tosa\u00edonn s\u00e9 s\u00e1rchl\u00f3ir\u00edni\u00fa, ag rith ar feadh na tr\u00e9imhse sonraithe n\u00f3 24 uair an chloig mura sonra\u00edtear aon cheann.",
+            "fields": {
+                "config_entry": {
+                    "description": "An iontr\u00e1il chumra\u00edochta le h\u00fas\u00e1id don ghn\u00edomh seo.",
+                    "name": "Iontr\u00e1il chumra\u00edochta"
+                },
+                "runtime": {
+                    "description": "L\u00edon na n-uaireanta a rithfidh an s\u00e1rchl\u00f3ir\u00edni\u00fa.",
+                    "name": "Am rith"
+                }
+            },
+            "name": "Tosaigh s\u00e1rchl\u00f3ir\u00edni\u00fa"
+        },
+        "stop_super_chlorination": {
+            "description": "Stopann s\u00e9 s\u00e1rchl\u00f3ir\u00edni\u00fa.",
+            "fields": {
+                "config_entry": {
+                    "description": "An iontr\u00e1il chumra\u00edochta le h\u00fas\u00e1id don ghn\u00edomh seo.",
+                    "name": "Iontr\u00e1il chumra\u00edochta"
+                }
+            },
+            "name": "Stop a chur le s\u00e1rchl\u00f3ir\u00edni\u00fa"
+        }
+    }
+}

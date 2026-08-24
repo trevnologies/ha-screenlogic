@@ -1,0 +1,15 @@
+{
+    "entity": {
+        "climate": {
+            "body_1": {
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "heater": "\u062d\u0627\u0631"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

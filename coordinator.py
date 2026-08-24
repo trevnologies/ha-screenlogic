@@ -1,105 +1,156 @@
-"""ScreenlogicDataUpdateCoordinator definition."""
+"""DataUpdateCoordinator for ScreenLogic (with remote gateway support)."""
+# This file replaces the built-in coordinator.py.
+# async_get_connect_info, _apply_remote_keepalive, _on_connection_closed,
+# and _async_update_data are changed — everything else is original.
 
-from datetime import timedelta
+from __future__ import annotations
+
 import logging
-from typing import TYPE_CHECKING, override
+from datetime import timedelta
 
-from screenlogicpy import ScreenLogicGateway
-from screenlogicpy.const.common import (
-    SL_GATEWAY_IP,
-    SL_GATEWAY_NAME,
-    SL_GATEWAY_PORT,
-    ScreenLogicCommunicationError,
-)
-from screenlogicpy.device_const.system import EQUIPMENT_FLAG
+from screenlogicpy import ScreenLogicError, ScreenLogicGateway
+from screenlogicpy.const.common import ScreenLogicConnectionError
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_IP_ADDRESS, CONF_PORT
+from homeassistant.const import CONF_IP_ADDRESS, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.debounce import Debouncer
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .config_flow import async_discover_gateways_by_unique_id, name_for_mac
-from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import (
+    CONF_CONNECTION_TYPE,
+    CONF_PASSWORD,
+    CONF_SYSTEM_NAME,
+    CONNECTION_REMOTE,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+)
+from .config_flow import async_resolve_remote_gateway
 
 _LOGGER = logging.getLogger(__name__)
 
-REQUEST_REFRESH_DELAY = 2
-HEATER_COOLDOWN_DELAY = 6
+type ScreenLogicConfigEntry = ConfigEntry[ScreenlogicDataUpdateCoordinator]
+
+
+def _apply_remote_keepalive(gateway: ScreenLogicGateway, is_remote: bool) -> None:
+    """
+    Override screenlogicpy's default 300s keepalive for remote/relay connections.
+
+    Pentair's relay enforces an idle-session timeout of ~30s -- far shorter
+    than screenlogicpy's hardcoded COM_KEEPALIVE (300s), which never fires
+    in time to stop the relay from resetting the connection. This reaches
+    into private attributes (not part of screenlogicpy's public API) to
+    re-arm the keepalive at a much shorter interval. If screenlogicpy's
+    internals change in a future version, this degrades to a logged
+    warning rather than a crash.
+    """
+    if not is_remote:
+        return
+    try:
+        client_manager = gateway._client_manager
+        protocol = client_manager._protocol
+        if protocol is not None:
+            protocol.enable_keepalive(client_manager._async_ping, 15)
+            _LOGGER.debug("Applied 15s keepalive override for remote connection")
+    except AttributeError as err:
+        _LOGGER.warning(
+            "Could not override keepalive interval for remote connection "
+            "(screenlogicpy internals may have changed): %s",
+            err,
+        )
 
 
 async def async_get_connect_info(
     hass: HomeAssistant, entry: ConfigEntry
-) -> dict[str, str | int]:
-    """Construct connect_info from configuration entry and returns it to caller."""
-    mac = entry.unique_id
-    # Attempt to rediscover gateway to follow IP changes
-    discovered_gateways = await async_discover_gateways_by_unique_id()
-    if mac in discovered_gateways:
-        return discovered_gateways[mac]
+) -> dict:
+    """
+    Build the kwargs dict for gateway.async_connect().
 
-    _LOGGER.debug("Gateway rediscovery failed for %s", entry.title)
-    if TYPE_CHECKING:
-        assert mac is not None
-    # Static connection defined or fallback from discovery
+    For remote entries: contacts Pentair's servers to resolve the current
+    IP/port for the system name, then adds the password.
+    For local entries: returns IP/port directly from config.
+    """
+    if entry.data.get(CONF_CONNECTION_TYPE) == CONNECTION_REMOTE:
+        system_name: str = entry.data[CONF_SYSTEM_NAME]
+        password: str = entry.data.get(CONF_PASSWORD, "")
+
+        resolved = await async_resolve_remote_gateway(system_name)
+        if resolved is None:
+            raise ScreenLogicConnectionError(
+                f"Could not resolve remote ScreenLogic gateway for '{system_name}'"
+            )
+
+        _LOGGER.debug(
+            "Remote ScreenLogic '%s' resolved to %s:%d",
+            system_name,
+            resolved["ip_address"],
+            resolved["port"],
+        )
+        return {
+            "ip": resolved["ip_address"],
+            "port": resolved["port"],
+        }
+
+    # Local connection — original behaviour
     return {
-        SL_GATEWAY_NAME: name_for_mac(mac),
-        SL_GATEWAY_IP: entry.data[CONF_IP_ADDRESS],
-        SL_GATEWAY_PORT: entry.data[CONF_PORT],
+        "ip": entry.data[CONF_IP_ADDRESS],
+        "port": entry.data.get(CONF_PORT, 80),
     }
 
 
-class ScreenlogicDataUpdateCoordinator(DataUpdateCoordinator[None]):
-    """Class to manage the data update for the Screenlogic component."""
-
-    config_entry: ConfigEntry
+class ScreenlogicDataUpdateCoordinator(DataUpdateCoordinator):
+    """Class to manage fetching ScreenLogic data."""
 
     def __init__(
         self,
         hass: HomeAssistant,
         *,
-        config_entry: ConfigEntry,
+        config_entry: ScreenLogicConfigEntry,
         gateway: ScreenLogicGateway,
     ) -> None:
-        """Initialize the Screenlogic Data Update Coordinator."""
+        """Initialize."""
+        self.config_entry = config_entry
         self.gateway = gateway
+
+        scan_interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
         super().__init__(
             hass,
             _LOGGER,
             config_entry=config_entry,
             name=DOMAIN,
-            update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
-            # Debounced option since the device takes
-            # a moment to reflect the knock-on changes
-            request_refresh_debouncer=Debouncer(
-                hass, _LOGGER, cooldown=REQUEST_REFRESH_DELAY, immediate=False
-            ),
+            update_interval=timedelta(seconds=scan_interval),
         )
 
-    async def _async_update_configured_data(self) -> None:
-        """Update data sets based on equipment config."""
-        if not self.gateway.is_client:
-            await self.gateway.async_get_status()
-            if EQUIPMENT_FLAG.INTELLICHEM in self.gateway.equipment_flags:
-                await self.gateway.async_get_chemistry()
+    def _on_connection_closed(self, *args, **kwargs) -> None:
+        """Called by screenlogicpy the moment the socket closes.
 
-        await self.gateway.async_get_pumps()
-        if EQUIPMENT_FLAG.CHLORINATOR in self.gateway.equipment_flags:
-            await self.gateway.async_get_scg()
+        Instead of waiting up to scan_interval (600s) for the next
+        scheduled poll to notice the gateway is disconnected, request an
+        immediate refresh so the reconnect (and remote re-resolve) happens
+        within a second or two of the drop, not up to 10 minutes later.
+        """
+        _LOGGER.debug("ScreenLogic connection closed -- requesting immediate refresh")
+        self.hass.async_create_task(self.async_request_refresh())
 
-    @override
-    async def _async_update_data(self) -> None:
-        """Fetch data from the Screenlogic gateway."""
+    async def _async_update_data(self):
+        """Fetch data from ScreenLogic gateway, reconnecting if needed."""
         try:
             if not self.gateway.is_connected:
                 connect_info = await async_get_connect_info(
                     self.hass, self.config_entry
                 )
-                await self.gateway.async_connect(**connect_info)
+                is_remote = (
+                    self.config_entry.data.get(CONF_CONNECTION_TYPE)
+                    == CONNECTION_REMOTE
+                )
+                await self.gateway.async_connect(
+                    connection_closed_callback=self._on_connection_closed,
+                    **connect_info,
+                )
+                _apply_remote_keepalive(self.gateway, is_remote)
 
-            await self._async_update_configured_data()
-        except ScreenLogicCommunicationError as sle:
-            if self.gateway.is_connected:
-                await self.gateway.async_disconnect()
-            raise UpdateFailed(sle.msg) from sle
+            await self.gateway.async_update()
+        except (ScreenLogicConnectionError, ScreenLogicError) as err:
+            raise UpdateFailed(str(err)) from err
+
+        return self.gateway.get_data()

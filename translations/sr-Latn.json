@@ -1,0 +1,145 @@
+{
+    "common": {
+        "climate_preset_dont_change": "Ne menjaj",
+        "climate_preset_heater": "Greja\u010d",
+        "climate_preset_solar": "Solarno",
+        "climate_preset_solar_preferred": "Solarno napajanje je prioritet",
+        "service_config_entry_description": "Konfiguracioni unos koji se koristi za ovu radnju.",
+        "service_config_entry_name": "Konfiguracioni unos"
+    },
+    "config": {
+        "abort": {
+            "already_configured": "Ure\u0111aj je ve\u0107 konfigurisan"
+        },
+        "error": {
+            "cannot_connect": "Povezivanje nije uspelo"
+        },
+        "flow_title": "{name}",
+        "step": {
+            "gateway_entry": {
+                "data": {
+                    "ip_address": "IP adresa",
+                    "port": "Port"
+                },
+                "description": "Unesite podatke za va\u0161 ScreenLogic gateway",
+                "title": "ScreenLogic"
+            },
+            "gateway_select": {
+                "data": {
+                    "selected_gateway": "Gateway"
+                },
+                "description": "Prona\u0111eni su slede\u0107i ScreenLogic gateway ure\u0111aji. Izaberite jedan za konfigurisanje ili odaberite ru\u010dno konfigurisanje ScreenLogic gateway ure\u0111aja.",
+                "title": "ScreenLogic"
+            }
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "ph_lockout": {
+                "name": "pH blokada"
+            }
+        },
+        "climate": {
+            "body_0": {
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "dont_change": "Ne menjaj",
+                            "heater": "Greja\u010d",
+                            "solar": "Solarno",
+                            "solar_preferred": "Solarno napajanje je prioritet"
+                        }
+                    }
+                }
+            },
+            "body_1": {
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "dont_change": "Ne menjaj",
+                            "heater": "Greja\u010d",
+                            "solar": "Solarno",
+                            "solar_preferred": "Solarno napajanje je prioritet"
+                        }
+                    }
+                }
+            }
+        },
+        "number": {
+            "calcium_hardness": {
+                "name": "Tvrdo\u0107a kalcijuma"
+            },
+            "cya": {
+                "name": "Cijanuri\u010dna kiselina"
+            },
+            "salt_tds_ppm": {
+                "name": "So/TDS"
+            },
+            "total_alkalinity": {
+                "name": "Ukupna alkalnost"
+            }
+        },
+        "sensor": {
+            "calcium_hardness": {
+                "name": "Tvrdo\u0107a kalcijuma"
+            },
+            "controller_state": {
+                "state": {
+                    "ready": "Spreman",
+                    "service": "Servis",
+                    "sync": "Sinhronizuj"
+                }
+            },
+            "cya": {
+                "name": "Cijanuri\u010dna kiselina"
+            },
+            "ph_probe_water_temp": {
+                "name": "pH sonda temperatura vode"
+            },
+            "salt_tds_ppm": {
+                "name": "So/TDS"
+            },
+            "total_alkalinity": {
+                "name": "Ukupna alkalnost"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "description": "Navedite pode\u0161avanja za {gateway_name}",
+                "title": "ScreenLogic"
+            }
+        }
+    },
+    "services": {
+        "set_color_mode": {
+            "description": "Postavlja re\u017eim boja za sva svetla sa podr\u0161kom za boje povezana na ScreenLogic gateway.",
+            "fields": {
+                "config_entry": {
+                    "description": "Konfiguracioni unos koji se koristi za ovu radnju.",
+                    "name": "Konfiguracioni unos"
+                }
+            }
+        },
+        "start_super_chlorination": {
+            "description": "Zapo\u010dinje super hlorisanje, koje traje tokom navedenog perioda ili 24 sata ako period nije odre\u0111en.",
+            "fields": {
+                "config_entry": {
+                    "description": "Konfiguracioni unos koji se koristi za ovu radnju.",
+                    "name": "Konfiguracioni unos"
+                }
+            }
+        },
+        "stop_super_chlorination": {
+            "description": "Zaustavlja superhlorisanje.",
+            "fields": {
+                "config_entry": {
+                    "description": "Konfiguracioni unos koji se koristi za ovu radnju.",
+                    "name": "Konfiguracioni unos"
+                }
+            },
+            "name": "Zaustavi superhlorisanje"
+        }
+    }
+}

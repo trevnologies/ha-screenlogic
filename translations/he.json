@@ -1,0 +1,62 @@
+{
+    "common": {
+        "climate_preset_heater": "\u05ea\u05e0\u05d5\u05e8 \u05d7\u05d9\u05de\u05d5\u05dd",
+        "climate_preset_solar": "\u05e1\u05d5\u05dc\u05d0\u05e8\u05d9"
+    },
+    "config": {
+        "abort": {
+            "already_configured": "\u05ea\u05e6\u05d5\u05e8\u05ea \u05d4\u05d4\u05ea\u05e7\u05df \u05db\u05d1\u05e8 \u05e0\u05e7\u05d1\u05e2\u05d4"
+        },
+        "error": {
+            "cannot_connect": "\u05d4\u05d4\u05ea\u05d7\u05d1\u05e8\u05d5\u05ea \u05e0\u05db\u05e9\u05dc\u05d4"
+        },
+        "flow_title": "{name}",
+        "step": {
+            "gateway_entry": {
+                "data": {
+                    "ip_address": "\u05db\u05ea\u05d5\u05d1\u05ea IP",
+                    "port": "\u05e4\u05ea\u05d7\u05d4"
+                }
+            },
+            "gateway_select": {
+                "data": {
+                    "selected_gateway": "\u05e9\u05e2\u05e8"
+                }
+            }
+        }
+    },
+    "entity": {
+        "climate": {
+            "body_0": {
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "heater": "\u05ea\u05e0\u05d5\u05e8 \u05d7\u05d9\u05de\u05d5\u05dd",
+                            "solar": "\u05e1\u05d5\u05dc\u05d0\u05e8\u05d9"
+                        }
+                    }
+                }
+            },
+            "body_1": {
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "heater": "\u05ea\u05e0\u05d5\u05e8 \u05d7\u05d9\u05de\u05d5\u05dd",
+                            "solar": "\u05e1\u05d5\u05dc\u05d0\u05e8\u05d9"
+                        }
+                    }
+                }
+            }
+        },
+        "number": {
+            "salt_tds_ppm": {
+                "name": "Salt/TDS"
+            }
+        },
+        "sensor": {
+            "salt_tds_ppm": {
+                "name": "Salt/TDS"
+            }
+        }
+    }
+}

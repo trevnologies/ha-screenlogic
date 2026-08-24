@@ -15,23 +15,24 @@ from homeassistant.helpers import config_validation as cv, entity_registry as er
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import slugify
 
-from .const import DOMAIN
-from .coordinator import ScreenlogicDataUpdateCoordinator, async_get_connect_info
+from .const import CONF_CONNECTION_TYPE, CONNECTION_REMOTE, DOMAIN
+from .coordinator import (
+    ScreenlogicDataUpdateCoordinator,
+    async_get_connect_info,
+    _apply_remote_keepalive,
+)
 from .data import ENTITY_MIGRATIONS
 from .services import async_setup_services
 from .util import generate_unique_id
 
 type ScreenLogicConfigEntry = ConfigEntry[ScreenlogicDataUpdateCoordinator]
 
-
 _LOGGER = logging.getLogger(__name__)
-
 
 REQUEST_REFRESH_DELAY = 2
 HEATER_COOLDOWN_DELAY = 6
 
-# These seem to be constant across all controller models
-PRIMARY_CIRCUIT_IDS = [500, 505]  # [Spa, Pool]
+PRIMARY_CIRCUIT_IDS = [500, 505]
 
 PLATFORMS = [
     Platform.BINARY_SENSOR,
@@ -47,9 +48,7 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up Screenlogic."""
-
     async_setup_services(hass)
-
     return True
 
 
@@ -61,9 +60,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ScreenLogicConfigEntry) 
     gateway = ScreenLogicGateway()
 
     connect_info = await async_get_connect_info(hass, entry)
+    is_remote = entry.data.get(CONF_CONNECTION_TYPE) == CONNECTION_REMOTE
 
     try:
         await gateway.async_connect(**connect_info)
+        _apply_remote_keepalive(gateway, is_remote)
         await gateway.async_update()
     except (ScreenLogicConnectionError, ScreenLogicError) as ex:
         raise ConfigEntryNotReady(ex.msg) from ex
@@ -119,36 +120,16 @@ async def _async_migrate_entries(
         ):
             source_key, source_index = key_parts
 
-        _LOGGER.debug(
-            "Checking migration status for '%s' against key '%s'",
-            entry.unique_id,
-            source_key,
-        )
-
         if source_key not in ENTITY_MIGRATIONS:
             continue
 
-        _LOGGER.debug(
-            "Evaluating migration of '%s' from migration key '%s'",
-            entry.entity_id,
-            source_key,
-        )
         migrations = ENTITY_MIGRATIONS[source_key]
         updates: dict[str, Any] = {}
         new_key = migrations["new_key"]
         if new_key in SHARED_VALUES:
             if (device := migrations.get("device")) is None:
-                _LOGGER.debug(
-                    "Shared key '%s' is missing required migration data 'device'",
-                    new_key,
-                )
                 continue
             if device == "pump" and source_index is None:
-                _LOGGER.debug(
-                    "Unable to parse 'source_index' from existing"
-                    " unique_id for pump entity '%s'",
-                    source_key,
-                )
                 continue
             new_unique_id = (
                 f"{source_mac}_{generate_unique_id(device, source_index, new_key)}"
@@ -160,13 +141,6 @@ async def _async_migrate_entries(
             if existing_entity_id := entity_registry.async_get_entity_id(
                 entry.domain, entry.platform, new_unique_id
             ):
-                _LOGGER.debug(
-                    "Cannot migrate '%s' to unique_id '%s',"
-                    " already exists for entity '%s'. Aborting",
-                    entry.unique_id,
-                    new_unique_id,
-                    existing_entity_id,
-                )
                 continue
             updates["new_unique_id"] = new_unique_id
 
@@ -183,10 +157,4 @@ async def _async_migrate_entries(
                     updates["original_name"] = new_original_name
 
         if updates:
-            _LOGGER.debug(
-                "Migrating entity '%s' unique_id from '%s' to '%s'",
-                entry.entity_id,
-                entry.unique_id,
-                new_unique_id,
-            )
             entity_registry.async_update_entity(entry.entity_id, **updates)

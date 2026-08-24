@@ -1,0 +1,18 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Naprava je \u017ee konfigurirana"
+        },
+        "error": {
+            "cannot_connect": "Povezava ni uspela"
+        },
+        "step": {
+            "gateway_entry": {
+                "data": {
+                    "ip_address": "IP naslov",
+                    "port": "Vrata"
+                }
+            }
+        }
+    }
+}
