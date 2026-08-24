@@ -46,5 +46,150 @@
         }
       }
     }
+  },
+  "entity": {
+    "binary_sensor": {
+      "active_alert": {
+        "name": "Problem"
+      },
+      "cleaner_delay": {
+        "name": "Cleaner Delay"
+      },
+      "freeze_mode": {
+        "name": "Freeze Mode"
+      },
+      "pool_delay": {
+        "name": "Pool Delay"
+      },
+      "spa_delay": {
+        "name": "Spa Delay"
+      },
+      "flow_alarm": {
+        "name": "Flow Alarm"
+      },
+      "chem_high_alarm": {
+        "name": "{chem} High Alarm"
+      },
+      "chem_low_alarm": {
+        "name": "{chem} Low Alarm"
+      },
+      "chem_supply_alarm": {
+        "name": "{chem} Supply Alarm"
+      },
+      "probe_fault_alarm": {
+        "name": "Probe Fault Alarm"
+      },
+      "chem_limit": {
+        "name": "{chem} Limit"
+      },
+      "ph_lockout": {
+        "name": "pH Lockout"
+      },
+      "corosive": {
+        "name": "Corrosive"
+      },
+      "scaling": {
+        "name": "Scaling"
+      },
+      "scg_state": {
+        "name": "Salt Cell State"
+      }
+    },
+    "sensor": {
+      "air_temperature": {
+        "name": "Air Temperature"
+      },
+      "controller_state": {
+        "name": "Controller State",
+        "state": {
+          "ready": "Ready",
+          "sync": "Sync",
+          "service": "Service"
+        }
+      },
+      "chem_now": {
+        "name": "{chem} Now"
+      },
+      "chem_supply_level": {
+        "name": "{chem} Supply Level"
+      },
+      "ph_probe_water_temp": {
+        "name": "pH Probe Water Temperature"
+      },
+      "saturation": {
+        "name": "Saturation Index"
+      },
+      "calcium_hardness": {
+        "name": "Calcium Hardness"
+      },
+      "cya": {
+        "name": "Cyanuric Acid"
+      },
+      "chem_setpoint": {
+        "name": "{chem} Setpoint"
+      },
+      "total_alkalinity": {
+        "name": "Total Alkalinity"
+      },
+      "salt_tds_ppm": {
+        "name": "Salt/TDS"
+      },
+      "chem_dose_state": {
+        "name": "{chem} Dose State",
+        "state": {
+          "dosing": "Dosing",
+          "mixing": "Mixing",
+          "monitoring": "Monitoring"
+        }
+      },
+      "chem_last_dose_time": {
+        "name": "{chem} Last Dose Time"
+      },
+      "chem_last_dose_volume": {
+        "name": "{chem} Last Dose Volume"
+      },
+      "salt_ppm": {
+        "name": "Salt Level"
+      },
+      "super_chlor_timer": {
+        "name": "Super Chlorination Timer"
+      },
+      "pump_active_circuit": {
+        "name": "Active Program"
+      }
+    },
+    "number": {
+      "calcium_hardness": {
+        "name": "Calcium Hardness"
+      },
+      "cya": {
+        "name": "Cyanuric Acid"
+      },
+      "total_alkalinity": {
+        "name": "Total Alkalinity"
+      },
+      "salt_tds_ppm": {
+        "name": "Salt/TDS"
+      },
+      "pool_setpoint": {
+        "name": "Pool Setpoint"
+      },
+      "spa_setpoint": {
+        "name": "Spa Setpoint"
+      }
+    },
+    "climate": {
+      "body_0": {
+        "name": "Heat"
+      },
+      "body_1": {
+        "name": "Heat"
+      }
+    },
+    "button": {
+      "sync_time": {
+        "name": "Sync Controller Time"
+      }
+    }
   }
 }
