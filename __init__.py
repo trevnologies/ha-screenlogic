@@ -36,6 +36,7 @@ PRIMARY_CIRCUIT_IDS = [500, 505]
 
 PLATFORMS = [
     Platform.BINARY_SENSOR,
+    Platform.BUTTON,
     Platform.CLIMATE,
     Platform.LIGHT,
     Platform.NUMBER,

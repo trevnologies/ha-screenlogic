@@ -185,6 +185,11 @@
       "body_1": {
         "name": "Heat"
       }
+    },
+    "button": {
+      "sync_time": {
+        "name": "Sync Controller Time"
+      }
     }
   }
 }
