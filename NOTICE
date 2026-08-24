@@ -1,0 +1,20 @@
+ha-screenlogic
+Copyright 2026 Trevor Waters
+
+This product includes software originally developed as part of Home
+Assistant Core (https://github.com/home-assistant/core), specifically the
+built-in "screenlogic" integration (homeassistant/components/screenlogic),
+Copyright The Home Assistant Authors.
+
+Home Assistant Core is licensed under the Apache License, Version 2.0.
+A copy of that license is included in this repository's LICENSE file.
+
+This repository is a derivative work: it extracts the screenlogic
+integration's history and code, and modifies it to add remote/cloud
+connectivity, corrected entity naming, split pump/system diagnostics,
+IntelliBrite color light effects, an active-program sensor, and a
+controller time-sync button, among other changes. See the git history
+and README for details on what has changed from upstream.
+
+This project is not affiliated with or endorsed by the Home Assistant
+project, Nabu Casa, or Pentair.
