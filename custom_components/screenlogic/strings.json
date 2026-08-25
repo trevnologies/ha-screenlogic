@@ -156,6 +156,12 @@
       },
       "pump_active_circuit": {
         "name": "Active Program"
+      },
+      "controller_time": {
+        "name": "Controller Time"
+      },
+      "controller_time_drift": {
+        "name": "Controller Time Drift"
       }
     },
     "number": {
@@ -176,6 +182,9 @@
       },
       "spa_setpoint": {
         "name": "Spa Setpoint"
+      },
+      "pump_preset_speed": {
+        "name": "{circuit} Speed"
       }
     },
     "climate": {

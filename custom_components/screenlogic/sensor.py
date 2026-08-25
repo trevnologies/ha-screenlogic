@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from copy import copy
 import dataclasses
+from datetime import datetime, timezone
 import logging
 
 from screenlogicpy.const.common import ON_OFF
@@ -22,6 +23,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .coordinator import ScreenlogicDataUpdateCoordinator
 from .entity import (
@@ -74,6 +76,25 @@ SUPPORTED_CORE_SENSORS = [
         translation_key="controller_state",
     ),
 ]
+
+# screenlogicpy polls the controller's own reported date/time on every
+# update cycle alongside the host's time at that same moment (has done
+# since v0.10.0) - no extra requests needed to expose either of these.
+CONTROLLER_TIME_DESCRIPTION = ScreenLogicSensorDescription(
+    data_root=(DEVICE.CONTROLLER,),
+    key=GROUP.DATE_TIME,
+    device_class=SensorDeviceClass.TIMESTAMP,
+    entity_category=EntityCategory.DIAGNOSTIC,
+    translation_key="controller_time",
+)
+
+CONTROLLER_TIME_DRIFT_DESCRIPTION = ScreenLogicSensorDescription(
+    data_root=(DEVICE.CONTROLLER,),
+    key=GROUP.DATE_TIME,
+    state_class=SensorStateClass.MEASUREMENT,
+    entity_category=EntityCategory.DIAGNOSTIC,
+    translation_key="controller_time_drift",
+)
 
 SUPPORTED_PUMP_SENSORS = [
     ScreenLogicSensorDescription(
@@ -290,6 +311,16 @@ async def async_setup_entry(
         )
     ]
 
+    if gateway.get_data(DEVICE.CONTROLLER, GROUP.DATE_TIME) is not None:
+        entities.append(
+            ScreenLogicControllerTimeSensor(coordinator, CONTROLLER_TIME_DESCRIPTION)
+        )
+        entities.append(
+            ScreenLogicControllerTimeDriftSensor(
+                coordinator, CONTROLLER_TIME_DRIFT_DESCRIPTION
+            )
+        )
+
     for pump_index, pump_data in gateway.get_data(DEVICE.PUMP).items():
         if not pump_data or not pump_data.get(VALUE.DATA):
             continue
@@ -379,6 +410,84 @@ class ScreenLogicSensor(ScreenLogicEntity, SensorEntity):
         val = self.entity_data[ATTR.VALUE]
         value_mod = self.entity_description.value_mod
         return value_mod(val) if value_mod else val
+
+
+def _corrected_controller_datetime(ts: float) -> datetime:
+    """Correct screenlogicpy's mislabeled controller timestamp.
+
+    screenlogicpy's getTime() decodes the controller's raw wall-clock
+    fields (whatever a human set it to - the controller has no real
+    timezone concept) and tags the result tzinfo=timezone.utc regardless
+    of what timezone those fields actually represent. This re-labels
+    those same field values as Home Assistant's configured local
+    timezone instead, then converts to true UTC - confirmed against a
+    real controller: it read 19:18 local, screenlogicpy's raw value
+    displayed as 12:18 PM Pacific (a clean 7-hour PDT offset) before this
+    correction.
+    """
+    mislabeled = datetime.fromtimestamp(ts, tz=timezone.utc)
+    corrected = mislabeled.replace(tzinfo=dt_util.DEFAULT_TIME_ZONE)
+    return corrected.astimezone(timezone.utc)
+
+
+class ScreenLogicControllerTimeSensor(ScreenLogicSensor):
+    """The controller's own reported current date/time.
+
+    Lets you eyeball drift at a glance, and confirms the Sync Controller
+    Time button actually did something - it should read ~now right after
+    a press, and on subsequent polls if the button worked.
+    """
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Controller's reported time, corrected for the timezone mislabel."""
+        ts = self.entity_data.get(VALUE.TIMESTAMP)
+        if ts is None:
+            return None
+        return _corrected_controller_datetime(ts)
+
+
+class ScreenLogicControllerTimeDriftSensor(ScreenLogicSensor):
+    """How far off the controller's clock is from Home Assistant's, in seconds.
+
+    Positive means the controller is ahead of Home Assistant; negative means
+    it's behind. Both timestamps come from the same poll screenlogicpy
+    already performs on every update, so this needs no extra requests.
+    Should collapse to ~0 on the next update after pressing Sync Controller
+    Time.
+    """
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: ScreenlogicDataUpdateCoordinator,
+        entity_description: ScreenLogicSensorDescription,
+    ) -> None:
+        """Initialize of the entity."""
+        super().__init__(coordinator, entity_description)
+        # ScreenLogicSensor.__init__ unconditionally sets this from
+        # ATTR.UNIT on entity_data (None here, since entity_data is the
+        # whole date_time dict, not a single ATTR-keyed value) - set it
+        # explicitly after super().__init__() so it isn't wiped out.
+        self._attr_native_unit_of_measurement = "s"
+        # generate_unique_id() falls back to using only the *second*
+        # element of the path when it isn't exactly 3 long - our path
+        # here is (DEVICE.CONTROLLER, GROUP.DATE_TIME), same 2-length
+        # shape and same key as the plain Controller Time sensor above,
+        # so both generated the identical ID and HA silently dropped
+        # this one ("... already exists - ignoring"). Override explicitly.
+        self._attr_unique_id = f"{self.mac}_controller_time_drift"
+
+    @property
+    def native_value(self) -> float | None:
+        """Controller time minus host time, in seconds, timezone-corrected."""
+        controller_ts = self.entity_data.get(VALUE.TIMESTAMP)
+        host_ts = self.entity_data.get(VALUE.TIMESTAMP_HOST)
+        if controller_ts is None or host_ts is None:
+            return None
+        corrected = _corrected_controller_datetime(controller_ts)
+        return round(corrected.timestamp() - host_ts, 1)
 
 
 class ScreenLogicPushSensor(ScreenLogicSensor, ScreenLogicPushEntity):

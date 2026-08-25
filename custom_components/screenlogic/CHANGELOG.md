@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.2.0 - 2026-08-24
+
+### Added
+
+- Pump preset speed control — a `number` entity per configured pump
+  preset (Pool/Spa/Pool Low/Spillway/Cleaner), letting you set any speed
+  within the supported range (450-3450 RPM or 20-140 GPM, per official
+  Pentair IntelliFlo specs) instead of only picking among fixed presets.
+  Not yet supported by screenlogicpy — implemented by calling its
+  internal request machinery directly, with the message structure
+  confirmed against parnic/node-screenlogic's `setPumpFlowAsync`, until
+  this can be contributed upstream
+- Controller Time and Controller Time Drift sensors, surfacing date/time
+  data screenlogicpy already polls on every update cycle but never
+  exposed — useful for confirming whether the Sync Controller Time button
+  actually did anything
+
 ## 1.1.0 - 2026-08-24
 
 ### Added
