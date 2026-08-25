@@ -357,6 +357,18 @@ class ScreenLogicPumpSpeedNumber(ScreenLogicNumber):
         self._attr_device_info = self._pump_device_info(
             pump_index, PUMP_TYPE(pump_type).title if pump_type is not None else None
         )
+        # generate_unique_id() falls back to using only the *second*
+        # element of the path when it isn't exactly 3 long. Our path here
+        # - (DEVICE.PUMP, pump_index, VALUE.PRESET, preset_index) - is
+        # 4 long, so it fell into that branch and returned just
+        # pump_index, alone, for every one of a pump's presets. All 5 of
+        # Pump 1's presets collided on the same ID; only the first
+        # (Pool) registered, the other 4 were silently dropped
+        # ("... already exists - ignoring"). Override explicitly so each
+        # preset gets its own real ID.
+        self._attr_unique_id = (
+            f"{self.mac}_pump_{pump_index}_preset_{preset_index}_speed"
+        )
         # ScreenLogicNumber.__init__ unconditionally overwrites this from
         # ATTR.UNIT on entity_data (absent here, unlike the min/max/step
         # fields which correctly defer to the description if already set)

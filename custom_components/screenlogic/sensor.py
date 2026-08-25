@@ -23,6 +23,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .coordinator import ScreenlogicDataUpdateCoordinator
 from .entity import (
@@ -411,6 +412,24 @@ class ScreenLogicSensor(ScreenLogicEntity, SensorEntity):
         return value_mod(val) if value_mod else val
 
 
+def _corrected_controller_datetime(ts: float) -> datetime:
+    """Correct screenlogicpy's mislabeled controller timestamp.
+
+    screenlogicpy's getTime() decodes the controller's raw wall-clock
+    fields (whatever a human set it to - the controller has no real
+    timezone concept) and tags the result tzinfo=timezone.utc regardless
+    of what timezone those fields actually represent. This re-labels
+    those same field values as Home Assistant's configured local
+    timezone instead, then converts to true UTC - confirmed against a
+    real controller: it read 19:18 local, screenlogicpy's raw value
+    displayed as 12:18 PM Pacific (a clean 7-hour PDT offset) before this
+    correction.
+    """
+    mislabeled = datetime.fromtimestamp(ts, tz=timezone.utc)
+    corrected = mislabeled.replace(tzinfo=dt_util.DEFAULT_TIME_ZONE)
+    return corrected.astimezone(timezone.utc)
+
+
 class ScreenLogicControllerTimeSensor(ScreenLogicSensor):
     """The controller's own reported current date/time.
 
@@ -421,11 +440,11 @@ class ScreenLogicControllerTimeSensor(ScreenLogicSensor):
 
     @property
     def native_value(self) -> datetime | None:
-        """Controller's reported time, converted from its raw timestamp."""
+        """Controller's reported time, corrected for the timezone mislabel."""
         ts = self.entity_data.get(VALUE.TIMESTAMP)
         if ts is None:
             return None
-        return datetime.fromtimestamp(ts, tz=timezone.utc)
+        return _corrected_controller_datetime(ts)
 
 
 class ScreenLogicControllerTimeDriftSensor(ScreenLogicSensor):
@@ -452,15 +471,23 @@ class ScreenLogicControllerTimeDriftSensor(ScreenLogicSensor):
         # whole date_time dict, not a single ATTR-keyed value) - set it
         # explicitly after super().__init__() so it isn't wiped out.
         self._attr_native_unit_of_measurement = "s"
+        # generate_unique_id() falls back to using only the *second*
+        # element of the path when it isn't exactly 3 long - our path
+        # here is (DEVICE.CONTROLLER, GROUP.DATE_TIME), same 2-length
+        # shape and same key as the plain Controller Time sensor above,
+        # so both generated the identical ID and HA silently dropped
+        # this one ("... already exists - ignoring"). Override explicitly.
+        self._attr_unique_id = f"{self.mac}_controller_time_drift"
 
     @property
     def native_value(self) -> float | None:
-        """Controller time minus host time, in seconds."""
+        """Controller time minus host time, in seconds, timezone-corrected."""
         controller_ts = self.entity_data.get(VALUE.TIMESTAMP)
         host_ts = self.entity_data.get(VALUE.TIMESTAMP_HOST)
         if controller_ts is None or host_ts is None:
             return None
-        return round(controller_ts - host_ts, 1)
+        corrected = _corrected_controller_datetime(controller_ts)
+        return round(corrected.timestamp() - host_ts, 1)
 
 
 class ScreenLogicPushSensor(ScreenLogicSensor, ScreenLogicPushEntity):
