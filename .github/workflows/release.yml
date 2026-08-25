@@ -1,0 +1,49 @@
+name: "Release on version bump"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "custom_components/screenlogic/manifest.json"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: "Read version from manifest.json"
+        id: version
+        run: |
+          VERSION=$(jq -r .version custom_components/screenlogic/manifest.json)
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: "Check if this version was already released"
+        id: check_tag
+        run: |
+          if git rev-parse "refs/tags/${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: "Create and push tag"
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: "Create GitHub release"
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: "softprops/action-gh-release@fe965f7af51af5f2602596916f38a38df2e33de0" # v3.0.2
+        with:
+          tag_name: "${{ steps.version.outputs.tag }}"
+          name: "${{ steps.version.outputs.tag }}"
+          generate_release_notes: true
