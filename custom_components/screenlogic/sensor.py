@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from copy import copy
 import dataclasses
+from datetime import datetime, timezone
 import logging
 
 from screenlogicpy.const.common import ON_OFF
@@ -74,6 +75,25 @@ SUPPORTED_CORE_SENSORS = [
         translation_key="controller_state",
     ),
 ]
+
+# screenlogicpy polls the controller's own reported date/time on every
+# update cycle alongside the host's time at that same moment (has done
+# since v0.10.0) - no extra requests needed to expose either of these.
+CONTROLLER_TIME_DESCRIPTION = ScreenLogicSensorDescription(
+    data_root=(DEVICE.CONTROLLER,),
+    key=GROUP.DATE_TIME,
+    device_class=SensorDeviceClass.TIMESTAMP,
+    entity_category=EntityCategory.DIAGNOSTIC,
+    translation_key="controller_time",
+)
+
+CONTROLLER_TIME_DRIFT_DESCRIPTION = ScreenLogicSensorDescription(
+    data_root=(DEVICE.CONTROLLER,),
+    key=GROUP.DATE_TIME,
+    state_class=SensorStateClass.MEASUREMENT,
+    entity_category=EntityCategory.DIAGNOSTIC,
+    translation_key="controller_time_drift",
+)
 
 SUPPORTED_PUMP_SENSORS = [
     ScreenLogicSensorDescription(
@@ -290,6 +310,16 @@ async def async_setup_entry(
         )
     ]
 
+    if gateway.get_data(DEVICE.CONTROLLER, GROUP.DATE_TIME) is not None:
+        entities.append(
+            ScreenLogicControllerTimeSensor(coordinator, CONTROLLER_TIME_DESCRIPTION)
+        )
+        entities.append(
+            ScreenLogicControllerTimeDriftSensor(
+                coordinator, CONTROLLER_TIME_DRIFT_DESCRIPTION
+            )
+        )
+
     for pump_index, pump_data in gateway.get_data(DEVICE.PUMP).items():
         if not pump_data or not pump_data.get(VALUE.DATA):
             continue
@@ -379,6 +409,58 @@ class ScreenLogicSensor(ScreenLogicEntity, SensorEntity):
         val = self.entity_data[ATTR.VALUE]
         value_mod = self.entity_description.value_mod
         return value_mod(val) if value_mod else val
+
+
+class ScreenLogicControllerTimeSensor(ScreenLogicSensor):
+    """The controller's own reported current date/time.
+
+    Lets you eyeball drift at a glance, and confirms the Sync Controller
+    Time button actually did something - it should read ~now right after
+    a press, and on subsequent polls if the button worked.
+    """
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Controller's reported time, converted from its raw timestamp."""
+        ts = self.entity_data.get(VALUE.TIMESTAMP)
+        if ts is None:
+            return None
+        return datetime.fromtimestamp(ts, tz=timezone.utc)
+
+
+class ScreenLogicControllerTimeDriftSensor(ScreenLogicSensor):
+    """How far off the controller's clock is from Home Assistant's, in seconds.
+
+    Positive means the controller is ahead of Home Assistant; negative means
+    it's behind. Both timestamps come from the same poll screenlogicpy
+    already performs on every update, so this needs no extra requests.
+    Should collapse to ~0 on the next update after pressing Sync Controller
+    Time.
+    """
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: ScreenlogicDataUpdateCoordinator,
+        entity_description: ScreenLogicSensorDescription,
+    ) -> None:
+        """Initialize of the entity."""
+        super().__init__(coordinator, entity_description)
+        # ScreenLogicSensor.__init__ unconditionally sets this from
+        # ATTR.UNIT on entity_data (None here, since entity_data is the
+        # whole date_time dict, not a single ATTR-keyed value) - set it
+        # explicitly after super().__init__() so it isn't wiped out.
+        self._attr_native_unit_of_measurement = "s"
+
+    @property
+    def native_value(self) -> float | None:
+        """Controller time minus host time, in seconds."""
+        controller_ts = self.entity_data.get(VALUE.TIMESTAMP)
+        host_ts = self.entity_data.get(VALUE.TIMESTAMP_HOST)
+        if controller_ts is None or host_ts is None:
+            return None
+        return round(controller_ts - host_ts, 1)
 
 
 class ScreenLogicPushSensor(ScreenLogicSensor, ScreenLogicPushEntity):
