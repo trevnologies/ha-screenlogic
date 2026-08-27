@@ -1,7 +1,10 @@
 """DataUpdateCoordinator for ScreenLogic (with remote gateway support)."""
 # This file replaces the built-in coordinator.py.
 # async_get_connect_info, _apply_remote_keepalive, _on_connection_closed,
-# and _async_update_data are changed — everything else is original.
+# and _async_update_data are changed for remote support. The local branch
+# of async_get_connect_info mirrors core's rediscovery-first behavior
+# exactly (see the "Local connection" comment below) -- everything else
+# is original.
 
 from __future__ import annotations
 
@@ -24,7 +27,11 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
 )
-from .config_flow import async_resolve_remote_gateway
+from .config_flow import (
+    async_discover_gateways_by_unique_id,
+    async_resolve_remote_gateway,
+    name_for_mac,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,9 +72,12 @@ async def async_get_connect_info(
     """
     Build the kwargs dict for gateway.async_connect().
 
-    For remote entries: contacts Pentair's servers to resolve the current
+    Remote entries: contacts Pentair's servers to resolve the current
     IP/port for the system name, then adds the password.
-    For local entries: returns IP/port directly from config.
+    Local entries: same as core -- attempt rediscovery first to follow
+    IP changes (DHCP lease renewals, etc.), and only fall back to the
+    statically configured IP/port if this gateway's MAC isn't found by
+    rediscovery.
     """
     if entry.data.get(CONF_CONNECTION_TYPE) == CONNECTION_REMOTE:
         system_name: str = entry.data[CONF_SYSTEM_NAME]
@@ -86,12 +96,23 @@ async def async_get_connect_info(
             resolved["port"],
         )
         return {
+            "name": system_name,
             "ip": resolved["ip_address"],
             "port": resolved["port"],
         }
 
-    # Local connection — original behaviour
+    # Local connection -- mirrors core's async_get_connect_info: try to
+    # rediscover the gateway by MAC first so a DHCP-changed IP is picked
+    # up automatically, and only fall back to the IP/port stored at setup
+    # time if rediscovery doesn't find this gateway.
+    mac = entry.unique_id
+    discovered_gateways = await async_discover_gateways_by_unique_id()
+    if mac in discovered_gateways:
+        return discovered_gateways[mac]
+
+    _LOGGER.debug("Gateway rediscovery failed for %s", entry.title)
     return {
+        "name": name_for_mac(mac) if mac else entry.title,
         "ip": entry.data[CONF_IP_ADDRESS],
         "port": entry.data.get(CONF_PORT, 80),
     }

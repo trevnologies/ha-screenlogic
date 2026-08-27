@@ -1,4 +1,4 @@
-# Pentair ScreenLogic (Remote Support)
+# Pentair ScreenLogic (w/ Remote Support)
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 [![Validate](https://github.com/trevnologies/ha-screenlogic/actions/workflows/validate.yml/badge.svg)](https://github.com/trevnologies/ha-screenlogic/actions/workflows/validate.yml)
@@ -8,13 +8,24 @@ A Home Assistant custom integration for Pentair ScreenLogic-connected pool
 and spa controllers (EasyTouch / IntelliTouch), forked from Home Assistant
 core's built-in `screenlogic` integration.
 
+**This is a superset of core's integration, not a replacement for local
+connectivity.** Everything core's `screenlogic` does over your local
+network — auto-discovery, manual IP entry, DHCP rediscovery — still works
+exactly the same here. During setup you choose "Local network" or "Remote
+via Pentair cloud"; local is still the default and doesn't require Pentair
+cloud credentials at all. Remote is purely additive, for when you're away
+from home and outside your LAN/VPN.
+
 ## Why This Fork Exists
 
 Core's `screenlogic` integration is solid but has a few real gaps this fork
 closes:
 
-- **Remote/cloud connectivity** — connect over Pentair's cloud relay, not
-  just local network (`iot_class: cloud_polling` instead of `local_push`)
+- **Remote/cloud connectivity** — *in addition to* local network support
+  (which this fork keeps in full, including DHCP auto-discovery), you can
+  now also connect over Pentair's cloud relay when you're away from home.
+  Local connections behave the same as core's; remote entries add a cloud
+  hop through Pentair's relay servers instead.
 - **Correct entity naming** — core's translation strings for several
   diagnostic entities (delay flags, controller state, chemistry/SCG
   entities) were incomplete, so they fell back to showing just the device
@@ -50,7 +61,7 @@ closes:
    custom repository" dialog with this repo pre-filled (requires
    [My Home Assistant](https://www.home-assistant.io/integrations/my/),
    on by default for most setups)
-2. Confirm, then find "Pentair ScreenLogic (Remote Support)" in HACS and
+2. Confirm, then find "Pentair ScreenLogic (w/ Remote Support)" in HACS and
    install
 3. Restart Home Assistant
 
@@ -58,7 +69,7 @@ Or manually:
 
 1. HACS → Integrations → ⋮ (top right) → Custom repositories
 2. Repository: `https://github.com/trevnologies/ha-screenlogic`, Category: Integration
-3. Search for "Pentair ScreenLogic (Remote Support)" and install
+3. Search for "Pentair ScreenLogic (w/ Remote Support)" and install
 4. Restart Home Assistant
 
 ### Manual (no HACS)
@@ -153,6 +164,13 @@ Then restart and check Settings → System → Logs.
 **Will this replace the built-in integration?**
 Yes, automatically — same domain, so installing this fork takes over from
 core's version rather than running alongside it.
+
+**Do I have to use the Pentair cloud / remote connection?**
+No. Local network connectivity is fully supported and is the default
+option in setup — auto-discovery, manual IP entry, and DHCP rediscovery
+all work exactly as they do in core. Remote is an additional connection
+type you can pick during setup if you want access from outside your
+network; it changes nothing about how local connections behave.
 
 **Will this be merged into Home Assistant core?**
 Unclear. Core's `screenlogic` is deliberately local-only by design; the

@@ -1,12 +1,22 @@
 {
   "domain": "screenlogic",
-  "name": "Pentair ScreenLogic (Remote Support)",
+  "name": "Pentair ScreenLogic (w/ Remote Support)",
   "codeowners": ["@trevnologies"],
   "config_flow": true,
   "dependencies": [],
+  "dhcp": [
+    {
+      "registered_devices": true
+    },
+    {
+      "hostname": "pentair*",
+      "macaddress": "00C033*"
+    }
+  ],
   "documentation": "https://github.com/trevnologies/ha-screenlogic",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/trevnologies/ha-screenlogic/issues",
+  "loggers": ["screenlogicpy"],
   "requirements": ["screenlogicpy==0.10.2"],
-  "version": "1.2.0"
+  "version": "1.2.1"
 }
