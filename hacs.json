@@ -1,5 +1,5 @@
 {
-  "name": "Pentair ScreenLogic (Remote Support)",
+  "name": "Pentair ScreenLogic (w/ Remote Support)",
   "render_readme": true,
   "homeassistant": "2024.1.0",
   "zip_release": true,

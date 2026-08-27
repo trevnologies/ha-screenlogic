@@ -1,5 +1,6 @@
 {
   "config": {
+    "flow_title": "{name}",
     "step": {
       "user": {
         "title": "Pentair ScreenLogic — Connection Type",
@@ -9,12 +10,14 @@
       },
       "gateway_select": {
         "title": "Select a ScreenLogic Gateway",
+        "description": "The following ScreenLogic gateways were discovered on your local network. Select one to configure, or choose to manually enter a gateway's connection details.",
         "data": {
           "selected_gateway": "Gateway"
         }
       },
       "gateway_entry": {
         "title": "ScreenLogic Gateway",
+        "description": "Enter your local ScreenLogic gateway's IP address and port.",
         "data": {
           "ip_address": "IP Address",
           "port": "Port"
@@ -189,10 +192,30 @@
     },
     "climate": {
       "body_0": {
-        "name": "Heat"
+        "name": "Heat",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "dont_change": "Don't change",
+              "heater": "Heater",
+              "solar": "Solar",
+              "solar_preferred": "Solar preferred"
+            }
+          }
+        }
       },
       "body_1": {
-        "name": "Heat"
+        "name": "Heat",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "dont_change": "Don't change",
+              "heater": "Heater",
+              "solar": "Solar",
+              "solar_preferred": "Solar preferred"
+            }
+          }
+        }
       }
     },
     "button": {
