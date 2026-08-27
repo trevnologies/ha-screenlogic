@@ -23,6 +23,9 @@
   debug logging" also captures the underlying library's debug output
 - CI: `validate.yml`'s `push` trigger is now scoped to `main` (matching
   `codeql.yml`), so Hassfest/HACS no longer run twice per PR
+- Replace deprecated HA constants (`PERCENTAGE`, `CONCENTRATION_PARTS_PER_MILLION`)
+  ahead of their removal in HA Core 2027.8
+- Add explicit job-level permissions to CI workflows
 
 ### Changed
 
