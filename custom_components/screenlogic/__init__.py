@@ -11,7 +11,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers import config_validation as cv, entity_registry as er
+from homeassistant.helpers import (
+    config_validation as cv,
+    device_registry as dr,
+    entity_registry as er,
+)
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import slugify
 
@@ -70,8 +74,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ScreenLogicConfigEntry) 
     except (ScreenLogicConnectionError, ScreenLogicError) as ex:
         raise ConfigEntryNotReady(ex.msg) from ex
 
+    # Register the gateway/controller device up front, via identifiers and
+    # connections only, so pump sub-devices can link to it with
+    # `via_device_id` (the resolved registry id) instead of the deprecated
+    # `via_device` identifiers-tuple shortcut. Doing this here -- inside
+    # __init__.py, squarely within the integration's own call stack --
+    # keeps HA's frame inspection unambiguous, unlike resolving it lazily
+    # from inside entity.py at entity-add time.
+    mac = entry.unique_id
+    assert mac is not None
+    gateway_device = dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, mac)},
+        connections={(dr.CONNECTION_NETWORK_MAC, mac)},
+        manufacturer="Pentair",
+        model=gateway.controller_model,
+        name=gateway.name,
+        sw_version=gateway.version,
+    )
+
     coordinator = ScreenlogicDataUpdateCoordinator(
-        hass, config_entry=entry, gateway=gateway
+        hass,
+        config_entry=entry,
+        gateway=gateway,
+        gateway_device_id=gateway_device.id,
     )
 
     await coordinator.async_config_entry_first_refresh()

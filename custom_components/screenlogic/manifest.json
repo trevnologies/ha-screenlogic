@@ -18,5 +18,5 @@
   "issue_tracker": "https://github.com/trevnologies/ha-screenlogic/issues",
   "loggers": ["screenlogicpy"],
   "requirements": ["screenlogicpy==0.10.2"],
-  "version": "1.2.1"
+  "version": "1.2.2"
 }

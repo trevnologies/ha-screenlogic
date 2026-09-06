@@ -127,10 +127,15 @@ class ScreenlogicDataUpdateCoordinator(DataUpdateCoordinator):
         *,
         config_entry: ScreenLogicConfigEntry,
         gateway: ScreenLogicGateway,
+        gateway_device_id: str,
     ) -> None:
         """Initialize."""
         self.config_entry = config_entry
         self.gateway = gateway
+        # Device registry id of the main gateway/controller device, resolved
+        # once at setup (see __init__.py). Pump entities use this for
+        # `via_device_id` instead of the deprecated `via_device` shortcut.
+        self.gateway_device_id = gateway_device_id
 
         scan_interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 

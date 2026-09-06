@@ -102,14 +102,21 @@ class ScreenLogicEntity(CoordinatorEntity[ScreenlogicDataUpdateCoordinator]):
 
         Pump diagnostics (GPM/RPM/Watts, running state) are physically
         separate equipment from the gateway/controller diagnostics, so they
-        get their own device page via via_device rather than piling
+        get their own device page via `via_device_id` rather than piling
         everything under one "Diagnostic" list.
+
+        `via_device_id` (the resolved device registry id) replaces the
+        deprecated `via_device` identifiers-tuple shortcut, which HA now
+        raises on instead of just warning about when it can't cleanly
+        attribute the call to an integration frame. The id is resolved
+        once in __init__.py's async_setup_entry and handed to us via the
+        coordinator, so this stays a plain, order-independent lookup.
         """
         mac = self.mac
         assert mac is not None
         return DeviceInfo(
             identifiers={(DOMAIN, f"{mac}_pump_{pump_index}")},
-            via_device=(DOMAIN, mac),
+            via_device_id=self.coordinator.gateway_device_id,
             manufacturer="Pentair",
             model=pump_model or "IntelliFlo Pump",
             name=f"Pump {pump_index + 1}",
