@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.2
+
+### Fixed
+- Pump sensor, binary_sensor, and number entities failing to load
+  ("Error adding entity None for domain ... with platform
+  screenlogic") on recent Home Assistant core versions. Caused by
+  the deprecated `via_device` device-registry parameter now raising
+  instead of warning. Pump devices are now linked to the gateway
+  device via `via_device_id`, resolved once at setup.
+
 ## 1.2.1 - 2026-08-27
 
 ### Fixed
