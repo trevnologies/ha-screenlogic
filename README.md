@@ -205,6 +205,13 @@ affiliated with or endorsed by Home Assistant, Nabu Casa, or Pentair.
 
 ## Contributing
 
+Run the tests with (Python 3.14):
+
+```bash
+pip install -r requirements_test.txt
+python -m pytest
+```
+
 Issues and pull requests welcome — [GitHub Issues](https://github.com/trevnologies/ha-screenlogic/issues).
 
 ## License

@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.2.4 - 2026-10-07
+
+### Changed
+- Ported two upstream Home Assistant core changes to the ScreenLogic
+  integration (tracked in #19):
+  - home-assistant/core#180161: services now look up their target config
+    entry with core's shared `async_get_config_entry` helper, so "entry not
+    found / not loaded / wrong integration" errors use Home Assistant's
+    standard translated messages.
+  - home-assistant/core#182112: config flow, options flow, and service
+    schemas use probatio, Home Assistant's replacement for voluptuous,
+    when the running release does (2026.10+), and voluptuous on earlier
+    releases.
+- Minimum Home Assistant version in `hacs.json` is now 2026.7.0. The
+  integration already required it (it uses `UnitOfRatio`, added in
+  2026.7); HACS was still advertising 2024.1.0, which would install on
+  releases where it can't load.
+
+### Added
+- Test suite (`tests/`) and a `Tests` workflow, run against Home Assistant
+  2026.7, 2026.9 and 2026.10 for this release.
+
 ## 1.2.3 - 2026-10-07
 
 ### Fixed

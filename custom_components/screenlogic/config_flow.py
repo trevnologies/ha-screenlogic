@@ -11,7 +11,6 @@ from typing import Any
 from screenlogicpy import ScreenLogicError, discovery
 from screenlogicpy.const.common import SL_GATEWAY_IP, SL_GATEWAY_NAME, SL_GATEWAY_PORT
 from screenlogicpy.requests import login
-import voluptuous as vol
 
 from homeassistant.config_entries import (
     ConfigEntry,
@@ -25,6 +24,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.device_registry import format_mac
 from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 
+from .compat import vol
 from .const import (
     CONF_CONNECTION_TYPE,
     CONF_PASSWORD,
