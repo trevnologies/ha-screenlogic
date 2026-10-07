@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.3 - 2026-10-07
+
+### Fixed
+- Hassfest validation failing on the `screenlogicpy` requirement.
+  Home Assistant core depends on the same package, and hassfest now
+  rejects exact (`==`) pins on core dependencies. The requirement is
+  now `screenlogicpy>=0.10.2`, so the integration follows whatever
+  version Home Assistant ships instead of conflicting with it when
+  core updates the library.
+
 ## 1.2.2
 
 ### Fixed
