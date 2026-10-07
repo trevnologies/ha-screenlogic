@@ -183,6 +183,13 @@ Yes — same as core's integration, any number of clients (this integration,
 the mobile app, etc.) can talk to the same controller, subject to the
 adapter's own connection limits.
 
+**How do I know when core's version changes?**
+A weekly workflow (`.github/workflows/upstream-sync-check.yml`) watches
+core's `screenlogic` integration and opens an issue labeled
+`upstream-sync` with the diff of each new core commit. Nothing is merged
+automatically — changes are reviewed and ported by hand, keeping local
+behavior as close to core as possible.
+
 **Can I switch back to the built-in integration?**
 Yes — remove this custom component, restart, and re-add the integration
 normally; core will set up its own config entry the same as it would from
