@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from screenlogicpy import ScreenLogicError, ScreenLogicGateway
 from screenlogicpy.const.common import ScreenLogicConnectionError
@@ -33,9 +34,10 @@ from .config_flow import (
     name_for_mac,
 )
 
-_LOGGER = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from .types import ScreenLogicConfigEntry
 
-type ScreenLogicConfigEntry = ConfigEntry[ScreenlogicDataUpdateCoordinator]
+_LOGGER = logging.getLogger(__name__)
 
 
 def _apply_remote_keepalive(gateway: ScreenLogicGateway, is_remote: bool) -> None:
@@ -120,6 +122,8 @@ async def async_get_connect_info(
 
 class ScreenlogicDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching ScreenLogic data."""
+
+    config_entry: ScreenLogicConfigEntry
 
     def __init__(
         self,

@@ -7,7 +7,6 @@ from screenlogicpy import ScreenLogicError, ScreenLogicGateway
 from screenlogicpy.const.common import ScreenLogicConnectionError
 from screenlogicpy.const.data import SHARED_VALUES
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -27,9 +26,8 @@ from .coordinator import (
 )
 from .data import ENTITY_MIGRATIONS
 from .services import async_setup_services
+from .types import ScreenLogicConfigEntry
 from .util import generate_unique_id
-
-type ScreenLogicConfigEntry = ConfigEntry[ScreenlogicDataUpdateCoordinator]
 
 _LOGGER = logging.getLogger(__name__)
 
