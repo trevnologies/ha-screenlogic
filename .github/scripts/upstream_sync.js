@@ -26,6 +26,12 @@ const MARKER_RE =
 const MAX_COMMITS = 100;
 const MAX_PATCH_CHARS = 4000;
 const MAX_BODY_CHARS = 60000;
+// "Get a commit" returns a commit's changed files in pages: without paging
+// it stops at the first 300, so core-wide refactors (which touch every
+// integration's manifest) silently drop files sorted after that cutoff,
+// screenlogic included. GitHub serves at most 3000 files per commit in total.
+const FILES_PER_PAGE = 100;
+const MAX_COMMIT_FILES = 3000;
 
 function marker(sha, date) {
   return `<!-- upstream-sync:last-seen sha=${sha} date=${date} -->`;
@@ -76,26 +82,57 @@ function truncate(text, max) {
   return `${text.slice(0, max)}\n… (truncated, see the commit for the full diff)`;
 }
 
+// Fetches a commit along with every file it changed, paging through the
+// file list instead of trusting the first response. Returns the commit data
+// from the first page, all files collected, and whether GitHub's 3000-file
+// ceiling was reached (in which case some files may still be missing).
+async function getCommitWithAllFiles({ github, sha }) {
+  let commit = null;
+  const files = [];
+  for (let page = 1; files.length < MAX_COMMIT_FILES; page++) {
+    const { data } = await github.rest.repos.getCommit({
+      owner: UPSTREAM.owner,
+      repo: UPSTREAM.repo,
+      ref: sha,
+      per_page: FILES_PER_PAGE,
+      page,
+    });
+    if (!commit) commit = data;
+    const batch = data.files || [];
+    files.push(...batch);
+    if (batch.length < FILES_PER_PAGE) break;
+  }
+  return { commit, files, capped: files.length >= MAX_COMMIT_FILES };
+}
+
 async function describeCommit({ github, sha, path }) {
-  const { data } = await github.rest.repos.getCommit({
-    owner: UPSTREAM.owner,
-    repo: UPSTREAM.repo,
-    ref: sha,
+  const { commit: data, files: allFiles, capped } = await getCommitWithAllFiles({
+    github,
+    sha,
   });
   const title = data.commit.message.split("\n")[0];
   const date = data.commit.committer.date;
-  const files = (data.files || []).filter((f) =>
-    f.filename.startsWith(`${path}/`),
-  );
+  const files = allFiles.filter((f) => f.filename.startsWith(`${path}/`));
   let out = `### [\`${sha.slice(0, 10)}\`](${data.html_url}) ${title}\n`;
   out += `Committed ${date}\n\n`;
   for (const f of files) {
     const rel = f.filename.slice(path.length + 1);
     out += `- \`${rel}\` (${f.status}, +${f.additions}/-${f.deletions})\n`;
   }
+  if (files.length === 0) {
+    // listCommits filtered by path, so this commit does touch `path`; the
+    // file list just didn't include it.
+    out +=
+      "_GitHub didn't return the changed files under this path" +
+      (capped ? ` (the commit touches more than ${MAX_COMMIT_FILES} files)` : "") +
+      ". Check the commit directly._\n";
+  }
   for (const f of files) {
-    if (!f.patch) continue;
     const rel = f.filename.slice(path.length + 1);
+    if (!f.patch) {
+      out += `\n_No diff returned for \`${rel}\` (too large or binary); see the commit._\n`;
+      continue;
+    }
     out += `\n<details><summary><code>${rel}</code></summary>\n\n`;
     out += "```diff\n" + truncate(f.patch, MAX_PATCH_CHARS) + "\n```\n</details>\n";
   }
@@ -196,3 +233,4 @@ module.exports = async ({ github, context, core }) => {
 // Exported for tests.
 module.exports.lastMarker = lastMarker;
 module.exports.marker = marker;
+module.exports.describeCommit = describeCommit;
