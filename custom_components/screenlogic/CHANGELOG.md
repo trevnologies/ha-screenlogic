@@ -1,5 +1,47 @@
 # Changelog
 
+## 1.3.0 - 2026-11-07
+
+**Requires Home Assistant 2026.11 or later.** HACS won't offer this release
+to older installs.
+
+### Changed
+- Names follow Home Assistant 2026.11's naming, where a name is built from the
+  device name and the entity name, so they no longer repeat each other:
+  - **Pool and Spa are now their own devices**, as child devices of the
+    controller (they take its area unless you give them one). Each body's
+    circuit is that device's main entity, so it shows as just "Pool" or
+    "Spa". Circuits on a body's tab in the controller move with it and lose
+    the repeated name: "Pool Low" stays "Pool Low" instead of becoming
+    "<controller> Pool Low", "Cleaner" becomes "Pool Cleaner", "Air Blower"
+    becomes "Spa Air Blower". The heaters ("Pool Heat", "Spa Heat"), the
+    pool and spa delay sensors and the chlorinator setpoints move to their
+    body as well. Features, lights and hidden circuits stay on the
+    controller.
+  - **Pump devices are named by the controller** ("Pool Pump", "Waterfall
+    Pump") instead of "Pump 1" / "Pump 2". The running sensor is the pump's
+    main entity and the rest drop the repeated pump name ("Pool Pump Watts
+    Now" instead of "Pump 1 Pool Pump Watts Now"). Pumps stay separate
+    devices connected through the controller.
+- Entity IDs don't change: existing entities move to their new device and
+  keep their IDs and history.
+- A name you set on an entity yourself is kept. If you renamed one to tell
+  two entities apart (for example "Heat Pool" and "Heat Spa"), clear that name
+  in the entity's settings to use the new one.
+
+### Ported from upstream (#30)
+- home-assistant/core#186199: `async_setup_entry` and `async_unload_entry`
+  return `None`, and unloading uses `async_unload_platforms_or_raise`.
+- home-assistant/core#187045: manifest `categories` (`water.pools_spas`).
+- home-assistant/core#189910: manifest `connectivity`. Core lists only
+  `network`; this fork also connects through Pentair's cloud relay, so it
+  lists `cloud` and `network`.
+
+### Added
+- Tests for the device structure and every changed name, run against a real
+  EasyTouch2 8's data. They need Home Assistant 2026.11 and are skipped on
+  the current test harness (2026.10.4) until its 2026.11 release.
+
 ## 1.2.4 - 2026-10-07
 
 ### Changed

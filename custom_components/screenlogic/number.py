@@ -12,7 +12,7 @@ from screenlogicpy.const.common import (
 from screenlogicpy.const.data import ATTR, DEVICE, GROUP, VALUE
 from screenlogicpy.const.msg import CODE
 from screenlogicpy.device_const.pump import PUMP_TYPE
-from screenlogicpy.device_const.system import EQUIPMENT_FLAG
+from screenlogicpy.device_const.system import BODY_TYPE, EQUIPMENT_FLAG
 from screenlogicpy.requests.protocol import ScreenLogicProtocol
 from screenlogicpy.requests.request import async_make_request
 
@@ -139,13 +139,15 @@ SUPPORTED_SCG_NUMBERS = [
         data_root=(DEVICE.SCG, GROUP.CONFIGURATION),
         key=VALUE.POOL_SETPOINT,
         entity_category=EntityCategory.CONFIG,
-        translation_key="pool_setpoint",
+        translation_key="chlorinator_setpoint",
+        body_type=BODY_TYPE.POOL,
     ),
     ScreenLogicNumberDescription(
         data_root=(DEVICE.SCG, GROUP.CONFIGURATION),
         key=VALUE.SPA_SETPOINT,
         entity_category=EntityCategory.CONFIG,
-        translation_key="spa_setpoint",
+        translation_key="chlorinator_setpoint",
+        body_type=BODY_TYPE.SPA,
     ),
 ]
 

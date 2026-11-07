@@ -61,12 +61,6 @@
       "freeze_mode": {
         "name": "Freeze Mode"
       },
-      "pool_delay": {
-        "name": "Pool Delay"
-      },
-      "spa_delay": {
-        "name": "Spa Delay"
-      },
       "flow_alarm": {
         "name": "Flow Alarm"
       },
@@ -96,6 +90,9 @@
       },
       "scg_state": {
         "name": "Salt Cell State"
+      },
+      "body_delay": {
+        "name": "Delay"
       }
     },
     "sensor": {
@@ -165,6 +162,15 @@
       },
       "controller_time_drift": {
         "name": "Controller Time Drift"
+      },
+      "pump_watts_now": {
+        "name": "Watts Now"
+      },
+      "pump_gpm_now": {
+        "name": "GPM Now"
+      },
+      "pump_rpm_now": {
+        "name": "RPM Now"
       }
     },
     "number": {
@@ -180,14 +186,11 @@
       "salt_tds_ppm": {
         "name": "Salt/TDS"
       },
-      "pool_setpoint": {
-        "name": "Pool Setpoint"
-      },
-      "spa_setpoint": {
-        "name": "Spa Setpoint"
-      },
       "pump_preset_speed": {
         "name": "{circuit} Speed"
+      },
+      "chlorinator_setpoint": {
+        "name": "Chlorinator Setpoint"
       }
     },
     "climate": {

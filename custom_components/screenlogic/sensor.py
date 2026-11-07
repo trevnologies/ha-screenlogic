@@ -101,15 +101,18 @@ SUPPORTED_PUMP_SENSORS = [
         data_root=(DEVICE.PUMP,),
         key=VALUE.WATTS_NOW,
         device_class=SensorDeviceClass.POWER,
+        translation_key="pump_watts_now",
     ),
     ScreenLogicSensorDescription(
         data_root=(DEVICE.PUMP,),
         key=VALUE.GPM_NOW,
+        translation_key="pump_gpm_now",
         enabled_lambda=lambda type: type != PUMP_TYPE.INTELLIFLO_VS,
     ),
     ScreenLogicSensorDescription(
         data_root=(DEVICE.PUMP,),
         key=VALUE.RPM_NOW,
+        translation_key="pump_rpm_now",
         enabled_lambda=lambda type: type != PUMP_TYPE.INTELLIFLO_VF,
     ),
 ]
