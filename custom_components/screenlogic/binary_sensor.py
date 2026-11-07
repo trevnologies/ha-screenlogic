@@ -7,7 +7,7 @@ from screenlogicpy.const.common import ON_OFF
 from screenlogicpy.const.data import ATTR, DEVICE, GROUP, VALUE
 from screenlogicpy.const.msg import CODE
 from screenlogicpy.device_const.pump import PUMP_TYPE
-from screenlogicpy.device_const.system import EQUIPMENT_FLAG
+from screenlogicpy.device_const.system import BODY_TYPE, EQUIPMENT_FLAG
 
 from homeassistant.components.binary_sensor import (
     DOMAIN as BINARY_SENSOR_DOMAIN,
@@ -68,13 +68,15 @@ SUPPORTED_CORE_SENSORS = [
         subscription_code=CODE.STATUS_CHANGED,
         data_root=(DEVICE.CONTROLLER, GROUP.SENSOR),
         key=VALUE.POOL_DELAY,
-        translation_key="pool_delay",
+        translation_key="body_delay",
+        body_type=BODY_TYPE.POOL,
     ),
     ScreenLogicPushBinarySensorDescription(
         subscription_code=CODE.STATUS_CHANGED,
         data_root=(DEVICE.CONTROLLER, GROUP.SENSOR),
         key=VALUE.SPA_DELAY,
-        translation_key="spa_delay",
+        translation_key="body_delay",
+        body_type=BODY_TYPE.SPA,
     ),
 ]
 
@@ -296,3 +298,6 @@ class ScreenLogicPumpBinarySensor(ScreenLogicBinarySensor):
         self._attr_device_info = self._pump_device_info(
             pump_index, PUMP_TYPE(pump_type).title if pump_type is not None else None
         )
+        # Whether the pump is running is what the pump device is, so it is
+        # the device's main entity and shows as just the pump's name.
+        self._attr_name = None

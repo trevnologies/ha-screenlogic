@@ -31,8 +31,12 @@ closes:
   entities) were incomplete, so they fell back to showing just the device
   name with no distinguishing label. Fixed here.
 - **Pump diagnostics split onto their own device** — pump GPM/RPM/Watts
-  now live on a dedicated "Pump N" device page instead of the main
-  gateway's diagnostics list
+  live on a device per pump, named by the controller ("Pool Pump",
+  "Waterfall Pump"), instead of the main gateway's diagnostics list
+- **Pool and Spa devices** — each body is a child device of the controller
+  with its own circuit, heater and related circuits, so names follow Home
+  Assistant 2026.11's naming without repeating ("Pool Cleaner", not
+  "Backyard Pool Pool Cleaner")
 - **An "active program" sensor** — for pumps shared across multiple
   circuits (e.g. Pool/Spa/Pool Low/Spillway/Cleaner on one physical pump),
   reports which program is actually driving the pump right now, instead of

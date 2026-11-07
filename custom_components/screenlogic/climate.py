@@ -85,6 +85,8 @@ class ScreenLogicClimate(ScreenLogicPushEntity, ClimateEntity, RestoreEntity):
     def __init__(self, coordinator, entity_description) -> None:
         """Initialize a ScreenLogic climate entity."""
         super().__init__(coordinator, entity_description)
+        # A body's heater lives on that body's device: "Pool Heat", "Spa Heat".
+        self._attr_device_info = self._body_device_info(self._data_key)
         self._configured_heat_modes = []
         # Is solar listed as available equipment?
         if EQUIPMENT_FLAG.SOLAR in self.gateway.equipment_flags:
