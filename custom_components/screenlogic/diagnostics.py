@@ -6,7 +6,7 @@ from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.core import HomeAssistant
 
 from .const import CONF_PASSWORD
-from .types import ScreenLogicConfigEntry
+from .coordinator import ScreenLogicConfigEntry
 
 # CONF_PASSWORD holds the plaintext Pentair remote-access password for
 # remote/cloud config entries. Core's screenlogic integration has no

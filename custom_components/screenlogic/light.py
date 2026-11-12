@@ -21,8 +21,8 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import LIGHT_CIRCUIT_FUNCTIONS
+from .coordinator import ScreenLogicConfigEntry
 from .entity import ScreenLogicCircuitEntity, ScreenLogicPushEntityDescription
-from .types import ScreenLogicConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 

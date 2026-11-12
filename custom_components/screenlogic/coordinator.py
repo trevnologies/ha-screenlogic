@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import logging
 from datetime import timedelta
-from typing import TYPE_CHECKING
 
 from screenlogicpy import ScreenLogicError, ScreenLogicGateway
 from screenlogicpy.const.common import ScreenLogicConnectionError
@@ -34,8 +33,7 @@ from .config_flow import (
     name_for_mac,
 )
 
-if TYPE_CHECKING:
-    from .types import ScreenLogicConfigEntry
+type ScreenLogicConfigEntry = ConfigEntry[ScreenlogicDataUpdateCoordinator]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,7 +67,7 @@ def _apply_remote_keepalive(gateway: ScreenLogicGateway, is_remote: bool) -> Non
 
 
 async def async_get_connect_info(
-    hass: HomeAssistant, entry: ConfigEntry
+    hass: HomeAssistant, entry: ScreenLogicConfigEntry
 ) -> dict:
     """
     Build the kwargs dict for gateway.async_connect().
