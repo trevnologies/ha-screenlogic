@@ -20,13 +20,13 @@ from homeassistant.util import slugify
 
 from .const import CONF_CONNECTION_TYPE, CONNECTION_REMOTE, DOMAIN
 from .coordinator import (
+    ScreenLogicConfigEntry,
     ScreenlogicDataUpdateCoordinator,
     async_get_connect_info,
     _apply_remote_keepalive,
 )
 from .data import ENTITY_MIGRATIONS
 from .services import async_setup_services
-from .types import ScreenLogicConfigEntry
 from .util import generate_unique_id
 
 _LOGGER = logging.getLogger(__name__)
