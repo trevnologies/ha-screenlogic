@@ -1,14 +1,14 @@
 """The config and options forms render through the real HTTP API.
 
-Catches schemas built with a library the running Home Assistant can't
-serialize (voluptuous vs probatio, core #182112).
+Catches schemas Home Assistant can't serialize (it validates forms with
+probatio since core #182112).
 """
 
 from __future__ import annotations
 
 from unittest.mock import patch
 
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 import custom_components.screenlogic.config_flow  # noqa: F401
 from custom_components.screenlogic.const import DOMAIN

@@ -8,6 +8,7 @@ import socket
 import struct
 from typing import Any
 
+import probatio
 from screenlogicpy import ScreenLogicError, discovery
 from screenlogicpy.const.common import SL_GATEWAY_IP, SL_GATEWAY_NAME, SL_GATEWAY_PORT
 from screenlogicpy.requests import login
@@ -24,7 +25,6 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.device_registry import format_mac
 from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 
-from .compat import vol
 from .const import (
     CONF_CONNECTION_TYPE,
     CONF_PASSWORD,
@@ -246,11 +246,11 @@ class ScreenlogicConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
+            data_schema=probatio.Schema(
                 {
-                    vol.Required(
+                    probatio.Required(
                         CONF_CONNECTION_TYPE, default=CONNECTION_LOCAL
-                    ): vol.In(
+                    ): probatio.In(
                         {
                             CONNECTION_LOCAL: "Local network (auto-discover or enter IP)",
                             CONNECTION_REMOTE: "Remote via Pentair cloud (System Name + Password)",
@@ -307,9 +307,9 @@ class ScreenlogicConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="gateway_select",
-            data_schema=vol.Schema(
+            data_schema=probatio.Schema(
                 {
-                    vol.Required(GATEWAY_SELECT_KEY): vol.In(
+                    probatio.Required(GATEWAY_SELECT_KEY): probatio.In(
                         {
                             **unconfigured_gateways,
                             GATEWAY_MANUAL_ENTRY: (
@@ -352,10 +352,10 @@ class ScreenlogicConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="gateway_entry",
-            data_schema=vol.Schema(
+            data_schema=probatio.Schema(
                 {
-                    vol.Required(CONF_IP_ADDRESS, default=ip_address): str,
-                    vol.Required(CONF_PORT, default=port): int,
+                    probatio.Required(CONF_IP_ADDRESS, default=ip_address): str,
+                    probatio.Required(CONF_PORT, default=port): int,
                 }
             ),
             errors=errors,
@@ -397,10 +397,10 @@ class ScreenlogicConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="remote",
-            data_schema=vol.Schema(
+            data_schema=probatio.Schema(
                 {
-                    vol.Required(CONF_SYSTEM_NAME): str,
-                    vol.Optional(CONF_PASSWORD, default=""): str,
+                    probatio.Required(CONF_SYSTEM_NAME): str,
+                    probatio.Optional(CONF_PASSWORD, default=""): str,
                 }
             ),
             description_placeholders={"example": "Pentair: XX-XX-XX"},
@@ -426,12 +426,12 @@ class ScreenLogicOptionsFlowHandler(OptionsFlow):
         )
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
+            data_schema=probatio.Schema(
                 {
-                    vol.Required(
+                    probatio.Required(
                         CONF_SCAN_INTERVAL,
                         default=current_interval,
-                    ): vol.All(cv.positive_int, vol.Clamp(min=MIN_SCAN_INTERVAL))
+                    ): probatio.All(cv.positive_int, probatio.Clamp(min=MIN_SCAN_INTERVAL))
                 }
             ),
             description_placeholders={"gateway_name": self.config_entry.title},
