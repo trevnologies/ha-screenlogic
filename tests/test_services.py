@@ -5,7 +5,7 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 from screenlogicpy.device_const.system import EQUIPMENT_FLAG
 
 from custom_components.screenlogic.const import DOMAIN, SUPPORTED_COLOR_MODES
@@ -28,6 +28,8 @@ def _coordinator(chlorinator: bool = True) -> MagicMock:
     coordinator.gateway.async_set_color_lights = AsyncMock()
     coordinator.gateway.async_set_scg_config = AsyncMock()
     coordinator.async_request_refresh = AsyncMock()
+    # Awaited when the harness unloads the entry at teardown.
+    coordinator.gateway.async_disconnect = AsyncMock()
     return coordinator
 
 
@@ -150,3 +152,6 @@ async def test_wrong_domain_entry(hass: HomeAssistant, loaded_entry) -> None:
             {ScreenLogicServiceArgument.CONFIG_ENTRY: other.entry_id},
             blocking=True,
         )
+    # The sun entry was only marked loaded; reset it so teardown doesn't
+    # try to unload an entry that was never set up.
+    other.mock_state(hass, ConfigEntryState.NOT_LOADED)

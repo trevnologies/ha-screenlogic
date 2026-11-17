@@ -1,4 +1,5 @@
-# Test dependencies for the ScreenLogic integration. pytest-homeassistant-custom-component
-# pins a matching homeassistant release; Dependabot bumps it weekly.
-pytest-homeassistant-custom-component==0.13.375
+# Test dependencies for the ScreenLogic integration. pytest-homeassistant is
+# published by Home Assistant core and pins the matching homeassistant release;
+# Dependabot bumps it weekly.
+pytest-homeassistant==2026.11.2
 screenlogicpy==0.10.2

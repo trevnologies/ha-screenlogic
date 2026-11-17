@@ -1,7 +1,8 @@
 name: Tests
 
 # Runs the integration's pytest suite against the Home Assistant release
-# pinned by pytest-homeassistant-custom-component in requirements_test.txt.
+# pinned by pytest-homeassistant (published by Home Assistant core) in
+# requirements_test.txt.
 on:
   push:
     branches: ["main"]
