@@ -8,17 +8,12 @@ import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from screenlogicpy.device_const.system import EQUIPMENT_FLAG
 
-from custom_components.screenlogic.const import (
-    ATTR_COLOR_MODE,
-    ATTR_CONFIG_ENTRY,
-    ATTR_RUNTIME,
-    DOMAIN,
-    SERVICE_SET_COLOR_MODE,
-    SERVICE_START_SUPER_CHLORINATION,
-    SERVICE_STOP_SUPER_CHLORINATION,
-    SUPPORTED_COLOR_MODES,
+from custom_components.screenlogic.const import DOMAIN, SUPPORTED_COLOR_MODES
+from custom_components.screenlogic.services import (
+    ScreenLogicService,
+    ScreenLogicServiceArgument,
+    async_setup_services,
 )
-from custom_components.screenlogic.services import async_setup_services
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
@@ -50,8 +45,11 @@ async def test_set_color_mode(hass: HomeAssistant, loaded_entry) -> None:
     mode = next(iter(SUPPORTED_COLOR_MODES))
     await hass.services.async_call(
         DOMAIN,
-        SERVICE_SET_COLOR_MODE,
-        {ATTR_CONFIG_ENTRY: loaded_entry.entry_id, ATTR_COLOR_MODE: mode},
+        ScreenLogicService.SET_COLOR_MODE,
+        {
+            ScreenLogicServiceArgument.CONFIG_ENTRY: loaded_entry.entry_id,
+            ScreenLogicServiceArgument.COLOR_MODE: mode,
+        },
         blocking=True,
     )
     gateway = loaded_entry.runtime_data.gateway
@@ -63,8 +61,11 @@ async def test_super_chlorination_start_stop(hass: HomeAssistant, loaded_entry) 
     gateway = loaded_entry.runtime_data.gateway
     await hass.services.async_call(
         DOMAIN,
-        SERVICE_START_SUPER_CHLORINATION,
-        {ATTR_CONFIG_ENTRY: loaded_entry.entry_id, ATTR_RUNTIME: 12},
+        ScreenLogicService.START_SUPER_CHLORINATION,
+        {
+            ScreenLogicServiceArgument.CONFIG_ENTRY: loaded_entry.entry_id,
+            ScreenLogicServiceArgument.RUNTIME: 12,
+        },
         blocking=True,
     )
     gateway.async_set_scg_config.assert_awaited_with(
@@ -72,8 +73,8 @@ async def test_super_chlorination_start_stop(hass: HomeAssistant, loaded_entry) 
     )
     await hass.services.async_call(
         DOMAIN,
-        SERVICE_STOP_SUPER_CHLORINATION,
-        {ATTR_CONFIG_ENTRY: loaded_entry.entry_id},
+        ScreenLogicService.STOP_SUPER_CHLORINATION,
+        {ScreenLogicServiceArgument.CONFIG_ENTRY: loaded_entry.entry_id},
         blocking=True,
     )
     gateway.async_set_scg_config.assert_awaited_with(
@@ -85,8 +86,8 @@ async def test_runtime_default_and_clamp(hass: HomeAssistant, loaded_entry) -> N
     gateway = loaded_entry.runtime_data.gateway
     await hass.services.async_call(
         DOMAIN,
-        SERVICE_START_SUPER_CHLORINATION,
-        {ATTR_CONFIG_ENTRY: loaded_entry.entry_id},
+        ScreenLogicService.START_SUPER_CHLORINATION,
+        {ScreenLogicServiceArgument.CONFIG_ENTRY: loaded_entry.entry_id},
         blocking=True,
     )
     gateway.async_set_scg_config.assert_awaited_with(
@@ -94,8 +95,11 @@ async def test_runtime_default_and_clamp(hass: HomeAssistant, loaded_entry) -> N
     )
     await hass.services.async_call(
         DOMAIN,
-        SERVICE_START_SUPER_CHLORINATION,
-        {ATTR_CONFIG_ENTRY: loaded_entry.entry_id, ATTR_RUNTIME: 500},
+        ScreenLogicService.START_SUPER_CHLORINATION,
+        {
+            ScreenLogicServiceArgument.CONFIG_ENTRY: loaded_entry.entry_id,
+            ScreenLogicServiceArgument.RUNTIME: 500,
+        },
         blocking=True,
     )
     gateway.async_set_scg_config.assert_awaited_with(
@@ -108,8 +112,8 @@ async def test_no_chlorinator(hass: HomeAssistant, loaded_entry) -> None:
     with pytest.raises(ServiceValidationError):
         await hass.services.async_call(
             DOMAIN,
-            SERVICE_START_SUPER_CHLORINATION,
-            {ATTR_CONFIG_ENTRY: loaded_entry.entry_id},
+            ScreenLogicService.START_SUPER_CHLORINATION,
+            {ScreenLogicServiceArgument.CONFIG_ENTRY: loaded_entry.entry_id},
             blocking=True,
         )
 
@@ -118,8 +122,8 @@ async def test_unknown_entry(hass: HomeAssistant, loaded_entry) -> None:
     with pytest.raises(ServiceValidationError):
         await hass.services.async_call(
             DOMAIN,
-            SERVICE_STOP_SUPER_CHLORINATION,
-            {ATTR_CONFIG_ENTRY: "does_not_exist"},
+            ScreenLogicService.STOP_SUPER_CHLORINATION,
+            {ScreenLogicServiceArgument.CONFIG_ENTRY: "does_not_exist"},
             blocking=True,
         )
 
@@ -129,8 +133,8 @@ async def test_entry_not_loaded(hass: HomeAssistant, loaded_entry) -> None:
     with pytest.raises(ServiceValidationError):
         await hass.services.async_call(
             DOMAIN,
-            SERVICE_STOP_SUPER_CHLORINATION,
-            {ATTR_CONFIG_ENTRY: loaded_entry.entry_id},
+            ScreenLogicService.STOP_SUPER_CHLORINATION,
+            {ScreenLogicServiceArgument.CONFIG_ENTRY: loaded_entry.entry_id},
             blocking=True,
         )
 
@@ -142,7 +146,7 @@ async def test_wrong_domain_entry(hass: HomeAssistant, loaded_entry) -> None:
     with pytest.raises(ServiceValidationError):
         await hass.services.async_call(
             DOMAIN,
-            SERVICE_STOP_SUPER_CHLORINATION,
-            {ATTR_CONFIG_ENTRY: other.entry_id},
+            ScreenLogicService.STOP_SUPER_CHLORINATION,
+            {ScreenLogicServiceArgument.CONFIG_ENTRY: other.entry_id},
             blocking=True,
         )
