@@ -4,6 +4,7 @@ from enum import StrEnum
 import logging
 from typing import cast
 
+import probatio
 from screenlogicpy import ScreenLogicError
 from screenlogicpy.device_const.system import EQUIPMENT_FLAG
 
@@ -11,7 +12,6 @@ from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import selector, service
 
-from .compat import vol
 from .const import DOMAIN, MAX_RUNTIME, MIN_RUNTIME, SUPPORTED_COLOR_MODES
 from .coordinator import ScreenLogicConfigEntry, ScreenlogicDataUpdateCoordinator
 
@@ -34,9 +34,9 @@ class ScreenLogicServiceArgument(StrEnum):
 
 _LOGGER = logging.getLogger(__name__)
 
-BASE_SERVICE_SCHEMA = vol.Schema(
+BASE_SERVICE_SCHEMA = probatio.Schema(
     {
-        vol.Required(
+        probatio.Required(
             ScreenLogicServiceArgument.CONFIG_ENTRY
         ): selector.ConfigEntrySelector(
             {
@@ -48,7 +48,7 @@ BASE_SERVICE_SCHEMA = vol.Schema(
 
 SET_COLOR_MODE_SCHEMA = BASE_SERVICE_SCHEMA.extend(
     {
-        vol.Required(ScreenLogicServiceArgument.COLOR_MODE): vol.In(
+        probatio.Required(ScreenLogicServiceArgument.COLOR_MODE): probatio.In(
             SUPPORTED_COLOR_MODES
         ),
     }
@@ -56,8 +56,8 @@ SET_COLOR_MODE_SCHEMA = BASE_SERVICE_SCHEMA.extend(
 
 TURN_ON_SUPER_CHLOR_SCHEMA = BASE_SERVICE_SCHEMA.extend(
     {
-        vol.Optional(ScreenLogicServiceArgument.RUNTIME, default=24): vol.All(
-            vol.Coerce(int), vol.Clamp(min=MIN_RUNTIME, max=MAX_RUNTIME)
+        probatio.Optional(ScreenLogicServiceArgument.RUNTIME, default=24): probatio.All(
+            probatio.Coerce(int), probatio.Clamp(min=MIN_RUNTIME, max=MAX_RUNTIME)
         ),
     }
 )
