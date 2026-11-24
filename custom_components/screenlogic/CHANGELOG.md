@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.1 - 2026-11-23
+
+Keeps the integration in sync with upstream Home Assistant core. No change in
+behavior.
+
+### Ported from upstream (#44)
+- home-assistant/core#193037: removed a redundant config entry `assert` in
+  `cleanup_excluded_entity`. The coordinator's `config_entry` is already typed
+  as non-optional, so the check never did anything.
+
 ## 1.3.0 - 2026-11-07
 
 **Requires Home Assistant 2026.11 or later.** HACS won't offer this release
